@@ -334,11 +334,12 @@
 
         .attr-table-header {
             display: grid;
-            grid-template-columns: 112px 34px 1fr;
+            grid-template-columns: 112px 34px 1fr 28px;
             align-items: center;
             font-weight: 900;
             font-size: 0.75rem;
             padding-bottom: 4px;
+            gap: 4px;
         }
 
         .attr-levels-guide {
@@ -349,10 +350,39 @@
 
         .attr-row {
             display: grid;
-            grid-template-columns: 112px 34px 1fr;
+            grid-template-columns: 112px 34px 1fr 28px;
             align-items: center;
             padding: 4px 0;
             border-bottom: 1px dashed #cccccc;
+            gap: 4px;
+        }
+
+        .btn-clear-single-attr {
+            width: 24px;
+            height: 24px;
+            border: 1.5px solid var(--ink);
+            background: var(--paper);
+            color: var(--ink);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            font-size: 0.68rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            transition: background 0.12s, color 0.12s;
+            padding: 0;
+        }
+
+        .btn-clear-single-attr:hover:not(:disabled) {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .btn-clear-single-attr:disabled {
+            opacity: 0.25;
+            cursor: default;
         }
 
         .attr-name-wrap {
@@ -1193,9 +1223,42 @@
            RESPONSIVIDADE MOBILE & TABLET
            ========================================================================== */
         @media (max-width: 920px) {
+            body {
+                padding: 10px 8px 48px;
+            }
+            .top-nav {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .nav-tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 6px;
+                scrollbar-width: thin;
+            }
+            .tab-btn {
+                flex: 0 0 auto;
+                min-height: 42px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 10px 14px;
+            }
+            .sync-badge {
+                justify-content: center;
+            }
             .sheet-header {
                 grid-template-columns: 1fr;
                 text-align: center;
+                gap: 16px;
+            }
+            .line-input-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 4px;
+                text-align: left;
             }
             .sheet-main-grid {
                 grid-template-columns: 1fr;
@@ -1207,20 +1270,98 @@
                 grid-template-columns: 1fr;
             }
             .sheet-wrapper {
-                padding: 18px 16px 28px;
+                padding: 16px 14px 26px;
+                box-shadow: 4px 4px 0px var(--ink);
+            }
+            .sheet-wrapper::before {
+                display: none;
+            }
+            .sheet-footer {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+                padding: 16px;
+            }
+            .footer-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            .footer-buttons .btn-action,
+            .footer-buttons .btn-copy-url {
+                width: 100%;
+                min-height: 46px;
+                justify-content: center;
             }
         }
 
-        @media (max-width: 540px) {
+        @media (max-width: 600px) {
+            /* Previne zoom automático em inputs no iOS Safari (>= 16px) e melhora alvos de toque */
+            input[type="text"],
+            input[type="number"],
+            input[type="url"],
+            textarea,
+            select,
+            .line-input,
+            .search-input,
+            .filter-select,
+            .memorial-textarea {
+                font-size: 16px !important;
+            }
+            .btn-mini {
+                min-height: 36px;
+                padding: 6px 10px;
+                font-size: 0.72rem;
+            }
             .inventory-grid {
                 grid-template-columns: 1fr;
             }
             .attr-row, .attr-table-header {
-                grid-template-columns: 96px 30px 1fr;
+                grid-template-columns: 92px 30px 1fr 32px;
             }
             .quad-diamond {
+                width: 32px;
+                height: 32px;
+            }
+            .btn-clear-single-attr {
+                width: 30px;
+                height: 30px;
+            }
+            .pip {
+                width: 19px;
+                height: 19px;
+                margin: 4px;
+            }
+            .trait-diamond-btn {
+                width: 30px;
+                height: 30px;
+            }
+            .trait-diamond-btn svg {
                 width: 26px;
                 height: 26px;
+            }
+            .btn-remove-row {
+                min-width: 34px;
+                min-height: 34px;
+                font-size: 1.2rem;
+            }
+            .attr-roll-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .roll-attr-btn {
+                min-height: 48px;
+            }
+            .cards-grid {
+                grid-template-columns: 1fr;
+                max-height: none;
+            }
+            .traits-list {
+                max-height: none;
+            }
+            .toast-banner {
+                left: 12px;
+                right: 12px;
+                bottom: 14px;
+                text-align: center;
             }
         }
 
@@ -1232,7 +1373,7 @@
                 background: #ffffff;
                 padding: 0;
             }
-            .top-nav, .sheet-footer, .btn-mini, .btn-remove-row, .portrait-controls, .traits-actions, .attr-help-box {
+            .top-nav, .sheet-footer, .btn-mini, .btn-remove-row, .btn-clear-single-attr, .portrait-controls, .traits-actions, .attr-help-box {
                 display: none !important;
             }
             .sheet-wrapper {
@@ -1316,6 +1457,13 @@
                 
                 <!-- COLUNA 1: ATRIBUTOS & VITAIS -->
                 <div class="attributes-section">
+                    <div class="section-header-bar" style="margin-bottom:2px;">
+                        <span class="section-title">ATRIBUTOS</span>
+                        <button type="button" id="btn-clear-attributes" class="btn-mini" title="Zerar todos os pontos de experiência investidos nos atributos (voltam ao Nível 3)">
+                            Limpar Atributos
+                        </button>
+                    </div>
+
                     <div class="attr-table-header">
                         <span>ATRIBUTO</span>
                         <span style="text-align:center;">NV</span>
@@ -1324,6 +1472,7 @@
                             <span>5</span>
                             <span>6</span>
                         </div>
+                        <span style="text-align:center;" title="Zerar atributo">0</span>
                     </div>
 
                     <div id="attributes-container">
@@ -2130,9 +2279,25 @@
                     track.appendChild(svg);
                 }
 
+                // Botão individual para limpar este atributo específico
+                const clearSingleBtn = document.createElement('button');
+                clearSingleBtn.type = 'button';
+                clearSingleBtn.className = 'btn-clear-single-attr';
+                clearSingleBtn.innerHTML = '&times;';
+                clearSingleBtn.disabled = totalQuads === 0;
+                clearSingleBtn.title = `Zerar ${attr.name} (voltar ao Nível 3)`;
+                clearSingleBtn.addEventListener('click', () => {
+                    state.attrQuadrants[attr.id] = 0;
+                    if (state.hpCurrent > getMaxLife()) state.hpCurrent = getMaxLife();
+                    if (state.enCurrent > getMaxEnergy()) state.enCurrent = getMaxEnergy();
+                    updateDerivedStatsAndSync();
+                    showToast(`${attr.name} resetado para o Nível 3.`);
+                });
+
                 row.appendChild(nameWrap);
                 row.appendChild(badge);
                 row.appendChild(track);
+                row.appendChild(clearSingleBtn);
                 container.appendChild(row);
             });
         }
@@ -2703,6 +2868,22 @@
                 renderVitalsAndXp();
                 syncStateToUrl();
                 showToast("+1 Ponto de Experiência de sessão adicionado!");
+            });
+
+            // Botão para limpar todos os atributos de uma vez
+            document.getElementById('btn-clear-attributes').addEventListener('click', () => {
+                const hasAnyPoints = Object.values(state.attrQuadrants).some(q => q > 0);
+                if (!hasAnyPoints) {
+                    showToast("Todos os atributos já estão no Nível 3!");
+                    return;
+                }
+                Object.keys(state.attrQuadrants).forEach(key => {
+                    state.attrQuadrants[key] = 0;
+                });
+                if (state.hpCurrent > getMaxLife()) state.hpCurrent = getMaxLife();
+                if (state.enCurrent > getMaxEnergy()) state.enCurrent = getMaxEnergy();
+                updateDerivedStatsAndSync();
+                showToast("Atributos limpos! Todos voltaram ao Nível 3.");
             });
 
             // Controles de Vida, Agravantes, Energia e Dinheiro
