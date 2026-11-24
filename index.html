@@ -1,0 +1,2861 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MONO RPG — Ficha de Personagem & Compêndio</title>
+    <!-- Fontes Google: Montserrat (Geométrica como o logo) e Patrick Hand / Courier Prime para notas -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==========================================================================
+           ESTILOS GERAIS & IDENTIDADE VISUAL MONO RPG (PRETO E BRANCO / TINTA & PAPEL)
+           ========================================================================== */
+        :root {
+            --ink: #111111;
+            --ink-soft: #444444;
+            --ink-muted: #777777;
+            --paper: #ffffff;
+            --paper-alt: #f6f6f6;
+            --paper-grid: #ececec;
+            --accent-eita: #111111;
+            --border-w: 2.5px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #e8e8e8;
+            background-image: 
+                radial-gradient(#cfcfcf 1px, transparent 1px),
+                radial-gradient(#cfcfcf 1px, #e8e8e8 1px);
+            background-size: 24px 24px;
+            background-position: 0 0, 12px 12px;
+            color: var(--ink);
+            line-height: 1.45;
+            padding: 16px 12px 64px;
+            overflow-x: hidden;
+        }
+
+        /* Container Principal estilo Folha de Papel com Borda Rabiscada */
+        .sheet-wrapper {
+            max-width: 1060px;
+            margin: 0 auto;
+            background: var(--paper);
+            position: relative;
+            padding: 28px 32px 40px;
+            border: 3px solid var(--ink);
+            box-shadow: 8px 8px 0px var(--ink);
+        }
+
+        /* Efeito de borda rabiscada orgânica ao redor da folha */
+        .sheet-wrapper::before {
+            content: "";
+            position: absolute;
+            inset: -7px;
+            border: 1.5px solid var(--ink);
+            pointer-events: none;
+            transform: rotate(-0.18deg);
+        }
+
+        .sheet-wrapper::after {
+            content: "";
+            position: absolute;
+            inset: 4px;
+            border: 1px dashed rgba(17, 17, 17, 0.25);
+            pointer-events: none;
+        }
+
+        /* ==========================================================================
+           NAVEGAÇÃO SUPERIOR (ABAS DE FICHA / ROLADOR / REGRAS & BESTIÁRIO)
+           ========================================================================== */
+        .top-nav {
+            max-width: 1060px;
+            margin: 0 auto 14px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .tab-btn {
+            background: var(--paper);
+            color: var(--ink);
+            border: 2.5px solid var(--ink);
+            padding: 9px 16px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 0.78rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.15s, color 0.15s;
+            box-shadow: 3px 3px 0 var(--ink);
+        }
+
+        .tab-btn:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 4px 4px 0 var(--ink);
+        }
+
+        .tab-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0 var(--ink);
+        }
+
+        .sync-badge {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.75rem;
+            background: var(--paper);
+            border: 1.5px solid var(--ink);
+            padding: 5px 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+        }
+
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--ink);
+            transform: rotate(45deg);
+            display: inline-block;
+        }
+
+        /* ==========================================================================
+           CABEÇALHO DA FICHA (LOGO MONO, IDENTIDADE & EXPERIÊNCIA)
+           ========================================================================== */
+        .sheet-header {
+            display: grid;
+            grid-template-columns: 110px 1fr 220px;
+            gap: 20px;
+            align-items: center;
+            border-bottom: 3px solid var(--ink);
+            padding-bottom: 20px;
+            margin-bottom: 24px;
+        }
+
+        .mono-brand {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .mono-diamond-logo {
+            width: 54px;
+            height: 54px;
+            border: 4.5px solid var(--ink);
+            transform: rotate(45deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            background: var(--paper);
+        }
+
+        .mono-diamond-logo::after {
+            content: "";
+            width: 11px;
+            height: 11px;
+            background: var(--ink);
+            border-radius: 50%;
+        }
+
+        .mono-title {
+            font-weight: 900;
+            font-size: 1.35rem;
+            letter-spacing: 0.22em;
+            margin-left: 0.22em;
+        }
+
+        .identity-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .line-input-group {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .line-input-group label {
+            font-weight: 800;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .line-input {
+            flex: 1;
+            border: none;
+            border-bottom: 2px solid var(--ink);
+            background: transparent;
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--ink);
+            padding: 3px 6px;
+            outline: none;
+            width: 100%;
+        }
+
+        .line-input:focus {
+            background: var(--paper-alt);
+        }
+
+        /* Caixa de Experiência (Losango + Contadores de XP) */
+        .xp-box {
+            border: 2.5px solid var(--ink);
+            padding: 12px 14px;
+            background: var(--paper-alt);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .xp-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .xp-header span {
+            font-weight: 800;
+            font-size: 0.82rem;
+            letter-spacing: 0.06em;
+        }
+
+        .xp-total-diamond {
+            width: 42px;
+            height: 42px;
+            border: 2.5px solid var(--ink);
+            transform: rotate(45deg);
+            background: var(--paper);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 4px;
+        }
+
+        .xp-total-diamond input {
+            transform: rotate(-45deg);
+            width: 34px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            font-size: 0.95rem;
+            color: var(--ink);
+            outline: none;
+        }
+
+        /* Remove setas do input number */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+
+        .xp-stats {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            font-weight: 700;
+            border-top: 1.5px solid var(--ink);
+            padding-top: 6px;
+        }
+
+        .xp-available.negative {
+            background: var(--ink);
+            color: var(--paper);
+            padding: 1px 5px;
+        }
+
+        .btn-mini {
+            border: 1.5px solid var(--ink);
+            background: var(--paper);
+            color: var(--ink);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 0.68rem;
+            padding: 3px 7px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-mini:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        /* ==========================================================================
+           GRID PRINCIPAL DA FICHA (3 COLUNAS FIÉIS À FICHA ORIGINAL)
+           ========================================================================== */
+        .sheet-main-grid {
+            display: grid;
+            grid-template-columns: 310px 260px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        /* COLUNA 1: ATRIBUTOS & STATUS VITAIS */
+        .attributes-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .attr-table-header {
+            display: grid;
+            grid-template-columns: 112px 34px 1fr;
+            align-items: center;
+            font-weight: 900;
+            font-size: 0.75rem;
+            padding-bottom: 4px;
+        }
+
+        .attr-levels-guide {
+            display: flex;
+            justify-content: space-around;
+            padding-left: 4px;
+        }
+
+        .attr-row {
+            display: grid;
+            grid-template-columns: 112px 34px 1fr;
+            align-items: center;
+            padding: 4px 0;
+            border-bottom: 1px dashed #cccccc;
+        }
+
+        .attr-name-wrap {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .attr-name {
+            font-weight: 800;
+            font-size: 0.85rem;
+            letter-spacing: 0.04em;
+            cursor: help;
+        }
+
+        .attr-tiebreaker {
+            font-size: 0.65rem;
+            font-family: 'Courier Prime', monospace;
+            color: var(--ink-soft);
+            font-weight: 700;
+        }
+
+        .attr-current-badge {
+            width: 28px;
+            height: 28px;
+            border: 2px solid var(--ink);
+            background: var(--ink);
+            color: var(--paper);
+            font-weight: 900;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+        }
+
+        /* Losangos de 4 partes (Quadrantes de XP) */
+        .diamonds-track {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-left: 4px;
+        }
+
+        .quad-diamond {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            transition: transform 0.12s;
+            user-select: none;
+        }
+
+        .quad-diamond:hover {
+            transform: scale(1.12);
+        }
+
+        .quad-diamond polygon {
+            stroke: var(--ink);
+            stroke-width: 1.8;
+            fill: var(--paper);
+            transition: fill 0.12s;
+        }
+
+        .quad-diamond polygon.filled {
+            fill: var(--ink);
+        }
+
+        .attr-help-box {
+            margin-top: 6px;
+            padding: 8px 10px;
+            border: 1.5px solid var(--ink);
+            background: var(--paper-alt);
+            font-size: 0.72rem;
+            min-height: 54px;
+            color: var(--ink-soft);
+        }
+
+        /* VIDA, ENERGIA E RESERVA (F$) */
+        .vitals-box {
+            margin-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border-top: 2.5px solid var(--ink);
+            padding-top: 14px;
+        }
+
+        .vital-row {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .vital-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .vital-label {
+            font-weight: 800;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+
+        .vital-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Courier Prime', monospace;
+            font-weight: 700;
+        }
+
+        .vital-num-input {
+            width: 38px;
+            text-align: center;
+            border: 2px solid var(--ink);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 0.88rem;
+            padding: 2px;
+            background: var(--paper);
+        }
+
+        .vital-max-tag {
+            font-weight: 800;
+            font-size: 0.85rem;
+            background: var(--paper-alt);
+            border: 1.5px solid var(--ink);
+            padding: 2px 7px;
+        }
+
+        .vital-pips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .pip {
+            width: 15px;
+            height: 15px;
+            border: 2px solid var(--ink);
+            transform: rotate(45deg);
+            margin: 3px;
+            cursor: pointer;
+            background: var(--paper);
+        }
+
+        .pip.active {
+            background: var(--ink);
+        }
+
+        .agravante-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+            background: var(--paper-alt);
+            padding: 5px 8px;
+            border: 1.5px dashed var(--ink);
+        }
+
+        .money-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid var(--ink);
+            padding: 7px 10px;
+            background: var(--paper);
+        }
+
+        .money-box label {
+            font-weight: 800;
+            font-size: 0.78rem;
+        }
+
+        .money-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 800;
+        }
+
+        .money-input-wrap input {
+            width: 68px;
+            border: none;
+            border-bottom: 2px solid var(--ink);
+            font-family: 'Courier Prime', monospace;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-align: right;
+            outline: none;
+        }
+
+        /* COLUNA 2: QUADRO DE RETRATO / ILUSTRAÇÃO & ARMA PREFERIDA */
+        .center-column {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .portrait-frame {
+            width: 100%;
+            height: 280px;
+            border: 2.5px solid var(--ink);
+            background: var(--paper);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .portrait-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(100%) contrast(120%);
+        }
+
+        .portrait-placeholder {
+            text-align: center;
+            padding: 16px;
+            color: var(--ink-muted);
+            font-size: 0.75rem;
+        }
+
+        .portrait-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .portrait-controls input {
+            flex: 1;
+            border: 1.5px solid var(--ink);
+            padding: 4px 7px;
+            font-size: 0.72rem;
+            font-family: 'Courier Prime', monospace;
+            outline: none;
+        }
+
+        .fav-weapon-box {
+            border: 2px solid var(--ink);
+            padding: 10px;
+            background: var(--paper-alt);
+        }
+
+        .fav-weapon-box label {
+            display: block;
+            font-weight: 800;
+            font-size: 0.78rem;
+            margin-bottom: 4px;
+            letter-spacing: 0.04em;
+        }
+
+        .fav-weapon-box small {
+            display: block;
+            font-size: 0.66rem;
+            color: var(--ink-soft);
+            margin-top: 5px;
+        }
+
+        /* COLUNA 3: CARACTERÍSTICAS (COM LOSANGOS DE 2 XP) */
+        .traits-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .section-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2.5px solid var(--ink);
+            padding-bottom: 6px;
+        }
+
+        .section-title {
+            font-weight: 900;
+            font-size: 0.9rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .traits-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .traits-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 495px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .trait-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 6px 8px;
+            border-bottom: 1.5px solid var(--ink);
+            background: var(--paper);
+            transition: background 0.1s;
+        }
+
+        .trait-item:hover {
+            background: var(--paper-alt);
+        }
+
+        /* Losango de Característica: Preenchido = 2 XP (Vantagem), Vazio = 0 XP (Limitante/Ruim) */
+        .trait-diamond-btn {
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            padding: 0;
+        }
+
+        .trait-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .trait-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .trait-name-input {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 0.8rem;
+            border: none;
+            background: transparent;
+            color: var(--ink);
+            width: 100%;
+            outline: none;
+            text-transform: uppercase;
+        }
+
+        .trait-tag {
+            font-size: 0.62rem;
+            font-weight: 800;
+            padding: 1px 5px;
+            border: 1px solid var(--ink);
+            white-space: nowrap;
+        }
+
+        .trait-tag.paid {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .trait-desc-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.74rem;
+            color: var(--ink-soft);
+            resize: none;
+            outline: none;
+            margin-top: 2px;
+            line-height: 1.3;
+        }
+
+        .btn-remove-row {
+            background: none;
+            border: none;
+            color: var(--ink-muted);
+            font-weight: 900;
+            font-size: 0.95rem;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+
+        .btn-remove-row:hover {
+            color: var(--ink);
+        }
+
+        /* ==========================================================================
+           SEÇÃO INFERIOR DA FICHA: PERTENCES (INVENTÁRIO EM 2 COLUNAS) & MEMORIAL
+           ========================================================================== */
+        .bottom-sheet-grid {
+            display: grid;
+            grid-template-columns: 1.35fr 1fr;
+            gap: 24px;
+            margin-top: 26px;
+            padding-top: 20px;
+            border-top: 3px solid var(--ink);
+        }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 16px;
+            margin-top: 10px;
+        }
+
+        .inv-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-bottom: 1.5px solid var(--ink);
+            padding: 3px 2px;
+        }
+
+        .inv-qty {
+            width: 32px;
+            border: 1px solid var(--ink);
+            text-align: center;
+            font-family: 'Courier Prime', monospace;
+            font-weight: 700;
+            font-size: 0.78rem;
+            padding: 1px;
+        }
+
+        .inv-name {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.8rem;
+            color: var(--ink);
+            outline: none;
+        }
+
+        .memorial-box {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .memorial-textarea {
+            width: 100%;
+            min-height: 220px;
+            border: 2px solid var(--ink);
+            padding: 12px;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.82rem;
+            line-height: 1.5;
+            background-image: repeating-linear-gradient(
+                transparent,
+                transparent 23px,
+                #e0e0e0 24px
+            );
+            resize: vertical;
+            outline: none;
+        }
+
+        /* ==========================================================================
+           SEÇÕES DAS OUTRAS ABAS (CATÁLOGOS, ROLADOR 1D6, REGRAS & BESTIÁRIO)
+           ========================================================================== */
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .catalog-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 220px;
+            border: 2.5px solid var(--ink);
+            padding: 9px 12px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .filter-select {
+            border: 2.5px solid var(--ink);
+            padding: 9px 12px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 0.82rem;
+            background: var(--paper);
+            cursor: pointer;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 14px;
+            max-height: 640px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+
+        .compendium-card {
+            border: 2px solid var(--ink);
+            padding: 12px 14px;
+            background: var(--paper);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 10px;
+            box-shadow: 3px 3px 0 var(--ink);
+        }
+
+        .compendium-card h4 {
+            font-weight: 900;
+            font-size: 0.88rem;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1.5px solid var(--ink);
+            padding-bottom: 5px;
+        }
+
+        .compendium-card p {
+            font-size: 0.78rem;
+            color: var(--ink-soft);
+            line-height: 1.4;
+        }
+
+        .card-meta {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.74rem;
+            font-weight: 700;
+            background: var(--paper-alt);
+            padding: 4px 7px;
+            border-left: 3px solid var(--ink);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        /* ROLADOR DE 1D6 DO MONO */
+        .roller-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .roller-box {
+            border: 2.5px solid var(--ink);
+            padding: 20px;
+            background: var(--paper-alt);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .attr-roll-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .roll-attr-btn {
+            border: 2px solid var(--ink);
+            background: var(--paper);
+            padding: 10px 6px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 0.75rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.1s;
+        }
+
+        .roll-attr-btn:hover, .roll-attr-btn.selected {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .dice-display-area {
+            border: 2.5px solid var(--ink);
+            background: var(--paper);
+            padding: 24px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 260px;
+        }
+
+        .die-face {
+            width: 74px;
+            height: 74px;
+            border: 4px solid var(--ink);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.4rem;
+            font-weight: 900;
+            margin-bottom: 14px;
+            box-shadow: 4px 4px 0 var(--ink);
+        }
+
+        .die-face.shake {
+            animation: diceShake 0.3s ease-in-out;
+        }
+
+        @keyframes diceShake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-12deg) scale(1.08); }
+            75% { transform: rotate(12deg) scale(1.08); }
+        }
+
+        .roll-verdict {
+            font-size: 1.45rem;
+            font-weight: 900;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 4px 14px;
+            margin-bottom: 6px;
+        }
+
+        .roll-verdict.eita {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .roll-verdict.vixe {
+            border: 2.5px dashed var(--ink);
+            color: var(--ink);
+        }
+
+        .roll-history {
+            max-height: 360px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .history-entry {
+            border: 1.5px solid var(--ink);
+            padding: 8px 10px;
+            background: var(--paper);
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.78rem;
+        }
+
+        /* REGRAS & BESTIÁRIO */
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .rule-block {
+            border: 2px solid var(--ink);
+            padding: 14px 16px;
+            background: var(--paper);
+        }
+
+        .rule-block h3 {
+            font-weight: 900;
+            font-size: 0.92rem;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--ink);
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+
+        .rule-block ul {
+            padding-left: 18px;
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        /* ==========================================================================
+           RODAPÉ COM BOTÃO DE DESTAQUE "COPIAR URL" E AÇÕES DA FICHA
+           ========================================================================== */
+        .sheet-footer {
+            max-width: 1060px;
+            margin: 22px auto 0;
+            padding: 18px 24px;
+            background: var(--paper);
+            border: 3px solid var(--ink);
+            box-shadow: 6px 6px 0 var(--ink);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .footer-info {
+            font-size: 0.75rem;
+            color: var(--ink-soft);
+        }
+
+        .footer-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-action {
+            border: 2.5px solid var(--ink);
+            background: var(--paper);
+            color: var(--ink);
+            padding: 11px 18px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.12s;
+        }
+
+        .btn-action:hover {
+            background: var(--paper-alt);
+            transform: translateY(-1px);
+        }
+
+        .btn-copy-url {
+            background: var(--ink);
+            color: var(--paper);
+            border: 2.5px solid var(--ink);
+            padding: 13px 26px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            font-size: 0.92rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 #777777;
+            transition: transform 0.1s, background 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-copy-url:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 5px 5px 0 #555555;
+        }
+
+        .btn-copy-url:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 #555555;
+        }
+
+        /* Caixa de Mensagem / Toast (Substituto elegante para alert/confirm) */
+        .toast-banner {
+            position: fixed;
+            bottom: 22px;
+            right: 22px;
+            background: var(--ink);
+            color: var(--paper);
+            border: 2.5px solid var(--paper);
+            box-shadow: 0 0 0 2.5px var(--ink);
+            padding: 12px 20px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(14px);
+            transition: all 0.2s ease;
+        }
+
+        .toast-banner.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Modal de Confirmação Customizado */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 16px;
+        }
+
+        .modal-backdrop.open {
+            display: flex;
+        }
+
+        .modal-card {
+            background: var(--paper);
+            border: 3px solid var(--ink);
+            box-shadow: 8px 8px 0 var(--ink);
+            max-width: 420px;
+            width: 100%;
+            padding: 22px;
+            text-align: center;
+        }
+
+        .modal-card h3 {
+            font-weight: 900;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .modal-card p {
+            font-size: 0.85rem;
+            margin-bottom: 18px;
+            color: var(--ink-soft);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        /* ==========================================================================
+           RESPONSIVIDADE MOBILE & TABLET
+           ========================================================================== */
+        @media (max-width: 920px) {
+            .sheet-header {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .sheet-main-grid {
+                grid-template-columns: 1fr;
+            }
+            .bottom-sheet-grid {
+                grid-template-columns: 1fr;
+            }
+            .roller-layout {
+                grid-template-columns: 1fr;
+            }
+            .sheet-wrapper {
+                padding: 18px 16px 28px;
+            }
+        }
+
+        @media (max-width: 540px) {
+            .inventory-grid {
+                grid-template-columns: 1fr;
+            }
+            .attr-row, .attr-table-header {
+                grid-template-columns: 96px 30px 1fr;
+            }
+            .quad-diamond {
+                width: 26px;
+                height: 26px;
+            }
+        }
+
+        /* ==========================================================================
+           ESTILO DE IMPRESSÃO (@media print)
+           ========================================================================== */
+        @media print {
+            body {
+                background: #ffffff;
+                padding: 0;
+            }
+            .top-nav, .sheet-footer, .btn-mini, .btn-remove-row, .portrait-controls, .traits-actions, .attr-help-box {
+                display: none !important;
+            }
+            .sheet-wrapper {
+                box-shadow: none;
+                border: 2px solid #000000;
+                max-width: 100%;
+                padding: 12px;
+            }
+            .tab-panel {
+                display: none !important;
+            }
+            #panel-sheet {
+                display: block !important;
+            }
+            .traits-list {
+                max-height: none;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Barra Superior de Navegação e Indicador de Sincronização Base64 -->
+    <nav class="top-nav">
+        <div class="nav-tabs">
+            <button class="tab-btn active" data-tab="panel-sheet">Ficha de Personagem</button>
+            <button class="tab-btn" data-tab="panel-traits">Catálogo de Características (66)</button>
+            <button class="tab-btn" data-tab="panel-items">Equipamentos & Alquimia</button>
+            <button class="tab-btn" data-tab="panel-roller">Dado 1d6 (Eita! / Vixe!)</button>
+            <button class="tab-btn" data-tab="panel-rules">Regras, Magia & Bestiário</button>
+        </div>
+        <div class="sync-badge" title="Todas as alterações são codificadas em Base64 diretamente na URL">
+            <span class="sync-dot"></span>
+            <span id="sync-status-text">URL Base64 Sincronizada</span>
+        </div>
+    </nav>
+
+    <!-- Folha Principal -->
+    <main class="sheet-wrapper">
+
+        <!-- ======================================================================
+             ABA 1: FICHA DE PERSONAGEM INTERATIVA
+             ====================================================================== -->
+        <section id="panel-sheet" class="tab-panel active">
+            <!-- Cabeçalho da Ficha -->
+            <header class="sheet-header">
+                <div class="mono-brand">
+                    <div class="mono-diamond-logo" aria-hidden="true"></div>
+                    <span class="mono-title">MONO</span>
+                </div>
+
+                <div class="identity-fields">
+                    <div class="line-input-group">
+                        <label for="char-name">PERSONAGEM</label>
+                        <input type="text" id="char-name" class="line-input" placeholder="Ex: Kalina, Arlindo, Zurk...">
+                    </div>
+                    <div class="line-input-group">
+                        <label for="player-name">JOGADORA / JOGADOR</label>
+                        <input type="text" id="player-name" class="line-input" placeholder="Seu nome na mesa">
+                    </div>
+                </div>
+
+                <div class="xp-box">
+                    <div class="xp-header">
+                        <span>EXPERIÊNCIA</span>
+                        <div class="xp-total-diamond" title="Pontos de Experiência Totais (Padrão: 30)">
+                            <input type="number" id="xp-total" value="30" min="0" max="999">
+                        </div>
+                        <button type="button" id="btn-add-session-xp" class="btn-mini" title="Ao final de cada sessão, ganha +1 XP">+1 Sessão</button>
+                    </div>
+                    <div class="xp-stats">
+                        <span>Gasto: <strong id="xp-spent">0</strong> XP</span>
+                        <span class="xp-available" id="xp-available-wrap">Livre: <strong id="xp-available">30</strong> XP</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Corpo Principal em 3 Colunas -->
+            <div class="sheet-main-grid">
+                
+                <!-- COLUNA 1: ATRIBUTOS & VITAIS -->
+                <div class="attributes-section">
+                    <div class="attr-table-header">
+                        <span>ATRIBUTO</span>
+                        <span style="text-align:center;">NV</span>
+                        <div class="attr-levels-guide">
+                            <span>4</span>
+                            <span>5</span>
+                            <span>6</span>
+                        </div>
+                    </div>
+
+                    <div id="attributes-container">
+                        <!-- Renderizado dinamicamente via JS -->
+                    </div>
+
+                    <div class="attr-help-box" id="attr-help-box">
+                        <strong>Dica MONO:</strong> Todos os atributos começam no <strong>Nível 3</strong>. Cada quadrante do losango custa <strong>1 XP</strong>. Completar 4/4 sobe +1 Nível. Frações incompletas servem como critério de desempate!
+                    </div>
+
+                    <!-- VIDA, ENERGIA, AGRAVANTES E RESERVA (FÁRIAS) -->
+                    <div class="vitals-box">
+                        <!-- VIDA -->
+                        <div class="vital-row">
+                            <div class="vital-top">
+                                <span class="vital-label">VIDA</span>
+                                <div class="vital-controls">
+                                    <button type="button" class="btn-mini" id="hp-dec">-</button>
+                                    <input type="number" id="hp-current" class="vital-num-input" value="3" min="0">
+                                    <span>/</span>
+                                    <span class="vital-max-tag" id="hp-max" title="Igual ao Nível de Saúde (+1 se Vigorosa, -1 por Agravante)">3</span>
+                                    <button type="button" class="btn-mini" id="hp-inc">+</button>
+                                </div>
+                            </div>
+                            <div class="vital-pips" id="hp-pips"></div>
+                        </div>
+
+                        <!-- AGRAVANTES -->
+                        <div class="agravante-row" title="Quando tem 1 de Vida e sofre um ataque Eita!, perde 1 de Vida Máxima permanentemente.">
+                            <span>Agravantes (-1 Vida Máx):</span>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <button type="button" class="btn-mini" id="agrav-dec">-</button>
+                                <strong id="agrav-count">0</strong>
+                                <button type="button" class="btn-mini" id="agrav-inc">+</button>
+                            </div>
+                        </div>
+
+                        <!-- ENERGIA -->
+                        <div class="vital-row">
+                            <div class="vital-top">
+                                <span class="vital-label">ENERGIA</span>
+                                <div class="vital-controls">
+                                    <button type="button" class="btn-mini" id="en-dec">-</button>
+                                    <input type="number" id="en-current" class="vital-num-input" value="3" min="0">
+                                    <span>/</span>
+                                    <span class="vital-max-tag" id="en-max" title="Igual a Espírito (ou Intelecto com Energia Mental; +1 com Canalizadora)">3</span>
+                                    <button type="button" class="btn-mini" id="en-inc">+</button>
+                                </div>
+                            </div>
+                            <div class="vital-pips" id="en-pips"></div>
+                        </div>
+
+                        <!-- RESERVA (FÁRIAS - F$) -->
+                        <div class="money-box">
+                            <div>
+                                <label for="money-current">RESERVA (FÁRIAS)</label>
+                                <div style="font-size:0.65rem; color:var(--ink-soft);">Inicial sugerida: <span id="money-suggested">300</span> F$</div>
+                            </div>
+                            <div class="money-input-wrap">
+                                <span>F$</span>
+                                <input type="number" id="money-current" value="300" min="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUNA 2: RETRATO & ARMA PREFERIDA -->
+                <div class="center-column">
+                    <div class="portrait-frame" id="portrait-frame">
+                        <div class="portrait-placeholder" id="portrait-placeholder">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.5" style="margin-bottom:8px;">
+                                <path d="M12 2L22 12L12 22L2 12Z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                                <path d="M7 18c1.5-2.5 8.5-2.5 10 0"/>
+                            </svg>
+                            <p><strong>RETRATO DA PERSONAGEM</strong></p>
+                            <p style="margin-top:4px;">Cole uma URL de imagem abaixo ou imprima para desenhar.</p>
+                        </div>
+                        <img id="portrait-img" src="" alt="Retrato do Personagem" style="display:none;">
+                    </div>
+
+                    <div class="portrait-controls">
+                        <input type="url" id="portrait-url" placeholder="URL da imagem do personagem...">
+                        <button type="button" id="btn-clear-portrait" class="btn-mini" title="Remover imagem">X</button>
+                    </div>
+
+                    <div class="fav-weapon-box">
+                        <label for="fav-weapon">ARMA PREFERIDA</label>
+                        <input type="text" id="fav-weapon" class="line-input" placeholder="Ex: Espada, Arco, Adaga...">
+                        <small>Outras armas sofrem <strong>-1</strong> (sem <em>Combatente</em>). Armas à distância gastam <strong>1 Turno</strong> para preparar (sem <em>Atiradora</em>). Dano base: <strong>1</strong>.</small>
+                    </div>
+                </div>
+
+                <!-- COLUNA 3: CARACTERÍSTICAS -->
+                <div class="traits-section">
+                    <div class="section-header-bar">
+                        <span class="section-title">CARACTERÍSTICAS</span>
+                        <div class="traits-actions">
+                            <button type="button" class="btn-mini" id="btn-open-traits-catalog">+ Catálogo</button>
+                            <button type="button" class="btn-mini" id="btn-add-custom-trait">+ Livre (2 XP)</button>
+                            <button type="button" class="btn-mini" id="btn-add-flaw-trait" title="Característica ruim/limitante adquirida em jogo não custa XP e deixa o losango vazio">+ Limitante (0 XP)</button>
+                        </div>
+                    </div>
+
+                    <div class="traits-list" id="traits-list">
+                        <!-- Lista de Características adicionadas -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO INFERIOR: PERTENCES & MEMORIAL DA MESA -->
+            <div class="bottom-sheet-grid">
+                <div>
+                    <div class="section-header-bar">
+                        <span class="section-title">PERTENCES</span>
+                        <div class="traits-actions">
+                            <button type="button" class="btn-mini" id="btn-open-items-catalog">+ Loja / Catálogo</button>
+                            <button type="button" class="btn-mini" id="btn-add-inv-item">+ Linha</button>
+                        </div>
+                    </div>
+                    <div class="inventory-grid" id="inventory-list">
+                        <!-- Itens do inventário -->
+                    </div>
+                </div>
+
+                <div class="memorial-box">
+                    <div class="section-header-bar">
+                        <span class="section-title">MEMORIAL & ANOTAÇÕES</span>
+                        <span style="font-size:0.68rem; font-weight:700; color:var(--ink-soft);">Salvo na URL</span>
+                    </div>
+                    <textarea id="char-notes" class="memorial-textarea" placeholder="Registre aqui a história da personagem, justificativa das características, magias criadas na mesa, ferimentos ou o Memorial da Mesa..."></textarea>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================================
+             ABA 2: CATÁLOGO COMPLETO DE CARACTERÍSTICAS DO LIVRO
+             ====================================================================== -->
+        <section id="panel-traits" class="tab-panel">
+            <div class="section-header-bar" style="margin-bottom:14px;">
+                <span class="section-title">CATÁLOGO OFICIAL DE CARACTERÍSTICAS</span>
+                <span style="font-size:0.75rem; font-weight:700;">Custo padrão: 2 Pontos de Experiência (Losango Preenchido)</span>
+            </div>
+
+            <div class="catalog-toolbar">
+                <input type="text" id="trait-search" class="search-input" placeholder="Buscar característica por nome ou efeito (ex: Mágica, Energia, Eita!, Dano)...">
+                <select id="trait-category-filter" class="filter-select">
+                    <option value="ALL">Todas as Categorias (66)</option>
+                    <option value="Geral">Características Gerais (61)</option>
+                    <option value="Moderno">Jogos Modernos (5)</option>
+                </select>
+            </div>
+
+            <div class="cards-grid" id="traits-catalog-grid"></div>
+        </section>
+
+        <!-- ======================================================================
+             ABA 3: EQUIPAMENTOS, ARMAS, ARMADURAS, ALQUIMIA E ITENS INCOMUNS
+             ====================================================================== -->
+        <section id="panel-items" class="tab-panel">
+            <div class="section-header-bar" style="margin-bottom:14px;">
+                <span class="section-title">EQUIPAMENTOS, ALQUIMIA & OBJETOS INCOMUNS</span>
+                <span style="font-size:0.78rem; font-weight:800;">Seu Saldo: F$ <span id="catalog-money-display">300</span></span>
+            </div>
+
+            <div class="catalog-toolbar">
+                <input type="text" id="item-search" class="search-input" placeholder="Buscar item, arma, poção ou item mágico...">
+                <select id="item-category-filter" class="filter-select">
+                    <option value="ALL">Todos os Itens</option>
+                    <option value="Objeto Comum">Objetos Comuns</option>
+                    <option value="Armadura">Armaduras</option>
+                    <option value="Arma Corpo-a-corpo">Armas Corpo-a-corpo</option>
+                    <option value="Arma de Pontaria">Armas de Pontaria</option>
+                    <option value="Alquimia">Alquimia (Produção)</option>
+                    <option value="Objeto Incomum">Objetos Incomuns & Mágicos</option>
+                </select>
+            </div>
+
+            <div class="cards-grid" id="items-catalog-grid"></div>
+        </section>
+
+        <!-- ======================================================================
+             ABA 4: ROLADOR DE 1D6 DO MONO (EITA! / SUCESSO / MARGEM / VIXE!)
+             ====================================================================== -->
+        <section id="panel-roller" class="tab-panel">
+            <div class="section-header-bar" style="margin-bottom:16px;">
+                <span class="section-title">ROLADOR DE TESTES MONO (1D6)</span>
+                <span style="font-size:0.75rem; font-weight:700;">Sucesso: Dado &le; Atributo | 1 = Eita! | 6 = Vixe!</span>
+            </div>
+
+            <div class="roller-layout">
+                <div class="roller-box">
+                    <label style="font-weight:800; font-size:0.82rem;">1. ESCOLHA O ATRIBUTO PARA TESTAR:</label>
+                    <div class="attr-roll-buttons" id="roller-attr-buttons"></div>
+
+                    <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                        <div>
+                            <label style="font-weight:800; font-size:0.75rem; display:block;">BÔNUS / PENALIDADE:</label>
+                            <select id="roll-modifier" class="filter-select" style="padding:6px 10px;">
+                                <option value="-3">-3 (Extremamente Difícil)</option>
+                                <option value="-2">-2 (Muito Difícil)</option>
+                                <option value="-1">-1 (Difícil)</option>
+                                <option value="0" selected>0 (Normal)</option>
+                                <option value="1">+1 (Fácil / Bônus)</option>
+                                <option value="2">+2 (Muito Fácil)</option>
+                                <option value="3">+3 (Trivial)</option>
+                            </select>
+                        </div>
+                        <div style="flex:1;">
+                            <label style="font-weight:800; font-size:0.75rem; display:block;">ALVO EFETIVO:</label>
+                            <div style="font-size:1.15rem; font-weight:900; padding:4px 0;" id="roll-effective-target">3</div>
+                        </div>
+                    </div>
+
+                    <button type="button" id="btn-roll-d6" class="btn-copy-url" style="width:100%; justify-content:center; margin-top:4px;">
+                        ROLAR 1D6
+                    </button>
+
+                    <div class="dice-display-area">
+                        <div class="die-face" id="die-face">?</div>
+                        <div class="roll-verdict" id="roll-verdict">PRONTO PARA ROLAR</div>
+                        <p id="roll-details" style="font-size:0.8rem; color:var(--ink-soft); max-width:340px;">
+                            Selecione um atributo acima e clique em Rolar 1d6.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="roller-box" style="background:var(--paper);">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <label style="font-weight:800; font-size:0.82rem;">HISTÓRICO DA SESSÃO</label>
+                        <button type="button" class="btn-mini" id="btn-clear-history">Limpar</button>
+                    </div>
+                    <div class="roll-history" id="roll-history">
+                        <p style="font-size:0.78rem; color:var(--ink-muted);">Nenhuma rolagem realizada ainda.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================================
+             ABA 5: COMPÊNDIO DE REGRAS, MAGIA & BESTIÁRIO DE ERIMANTIA
+             ====================================================================== -->
+        <section id="panel-rules" class="tab-panel">
+            <div class="section-header-bar" style="margin-bottom:16px;">
+                <span class="section-title">GUIA DE REGRAS DO MONO & BESTIÁRIO DE ERIMANTIA</span>
+                <span style="font-size:0.75rem; font-weight:700;">Por Jordny Bor</span>
+            </div>
+
+            <div class="rules-grid" style="margin-bottom:24px;">
+                <div class="rule-block">
+                    <h3>Testes, Margem, Eita! e Vixe!</h3>
+                    <ul>
+                        <li><strong>Sucesso:</strong> Rolar 1d6 com resultado <strong>igual ou menor</strong> que o Nível do Atributo.</li>
+                        <li><strong>Margem:</strong> Diferença entre o Nível do Atributo e o valor obtido no dado (Ex: Atributo 4, Dado 2 = Margem 2).</li>
+                        <li><strong>Eita! (Dado = 1):</strong> Melhor sucesso possível! Vence disputas automaticamente (ignora Defesa em ataques), pode aumentar dano em +1 ou zerar custo de Energia.</li>
+                        <li><strong>Vixe! (Dado = 6):</strong> Sempre é falha crítica! Pode derrubar/quebrar a arma, deixar abalado ou causar acidentes mágicos.</li>
+                        <li><strong>Iniciativa:</strong> Líder dos jogadores e Líder dos rivais testam Físico ou Intelecto (frações de XP desempatam).</li>
+                    </ul>
+                </div>
+
+                <div class="rule-block">
+                    <h3>Combate, Distâncias e Deslocamento</h3>
+                    <ul>
+                        <li><strong>1. Ataque:</strong> Teste Ataque (ou Espírito para magia). Dano base de qualquer arma é <strong>1</strong>.</li>
+                        <li><strong>2. Defesa:</strong> Disputa de Defesa contra o Ataque do oponente (vence quem tiver maior Margem).</li>
+                        <li><strong>Agravante:</strong> Com apenas 1 de Vida, sofrer um <em>Eita!</em> reduz a Vida Máxima em -1 permanentemente.</li>
+                        <li><strong>Distâncias:</strong> <em>Perto/Curto</em> (toque/corpo-a-corpo), <em>Longe/Longo</em> (grito/arremesso/arco), <em>Muito Longe</em> (fora de alcance).</li>
+                        <li><strong>Deslocamento:</strong> Menor muda 1 passo por turno (Perto &harr; Longe). Maior (<em>Deslocadora</em>) vai de Perto a Muito Longe em 1 turno.</li>
+                    </ul>
+                </div>
+
+                <div class="rule-block">
+                    <h3>Magia Livre (Requer Característica Mágica)</h3>
+                    <ul>
+                        <li><strong>0 Energia:</strong> Truques visuais, acender fogueira, 1 de dano mágico em Alcance Curto.</li>
+                        <li><strong>1 Energia:</strong> Alcance Longo, mudar tipo de dano (fogo/frio/raio), +1 dano na arma de aliado por 1 rodada, pequenas ilusões, evitar queda, conjuração silenciosa.</li>
+                        <li><strong>2 Energia:</strong> Aumentar um atributo por 1 rodada, atingir alvo extra, curar 1 de Vida.</li>
+                        <li><strong>3 Energia:</strong> Voar no próximo turno, invisibilidade por 1 turno, ataque mágico de 2 de dano (Curto).</li>
+                        <li><strong>4 Energia:</strong> Voar/invisível por minutos, telepatia, 2 de dano Longo, teletransporte Longo, possuir alvo por 1 turno.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-header-bar" style="margin-bottom:12px;">
+                <span class="section-title">BESTIÁRIO DE ERIMANTIA (TODAS AS CRIATURAS DO LIVRO)</span>
+                <input type="text" id="creature-search" class="search-input" style="max-width:280px; padding:5px 10px;" placeholder="Filtrar criatura...">
+            </div>
+
+            <div class="cards-grid" id="bestiary-grid"></div>
+        </section>
+
+    </main>
+
+    <!-- Rodapé com Botão de Destaque "Copiar URL" -->
+    <footer class="sheet-footer">
+        <div class="footer-info">
+            <strong>MONO RPG</strong> — Sistema criado por Jordny Bor. Ficha salva em tempo real via Base64 na URL.<br>
+            Qualquer alteração atualiza o link automaticamente; compartilhar a URL envia a ficha completa.
+        </div>
+        <div class="footer-buttons">
+            <button type="button" id="btn-reset-sheet" class="btn-action">Nova Ficha</button>
+            <button type="button" id="btn-print-sheet" class="btn-action">Imprimir</button>
+            <button type="button" id="btn-copy-url" class="btn-copy-url">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span id="copy-url-label">Copiar URL</span>
+            </button>
+        </div>
+    </footer>
+
+    <!-- Notificação Visual (Toast) -->
+    <div class="toast-banner" id="toast-banner">URL Copiada!</div>
+
+    <!-- Modal Customizado de Confirmação -->
+    <div class="modal-backdrop" id="confirm-modal">
+        <div class="modal-card">
+            <h3 id="modal-title">Resetar Ficha?</h3>
+            <p id="modal-text">Isso limpará todos os dados atuais da ficha e iniciará um personagem novo com 30 XP e 300 F$.</p>
+            <div class="modal-actions">
+                <button type="button" class="btn-action" id="modal-cancel">Cancelar</button>
+                <button type="button" class="btn-copy-url" style="padding:10px 18px; font-size:0.8rem;" id="modal-confirm">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         JAVASCRIPT: DADOS DO LIVRO, ESTADO REATIVO, BASE64 URL SYNC & INTERATIVIDADE
+         ========================================================================== -->
+    <script>
+        /**
+         * BASE DE DADOS COMPLETA EXTRAÍDA DO MANUAL DO MONO RPG (JORDNY BOR)
+         */
+        const MONO_DATA = {
+            attributes: [
+                {
+                    id: 'ataque',
+                    name: 'ATAQUE',
+                    desc: 'Mede a efetividade de golpes ou disparos dentro de um Combate. Testado contra a Defesa do oponente.'
+                },
+                {
+                    id: 'defesa',
+                    name: 'DEFESA',
+                    desc: 'Representa tudo o que protege a personagem em combate, seja esquiva bem aplicada ou armadura espessa.'
+                },
+                {
+                    id: 'espirito',
+                    name: 'ESPÍRITO',
+                    desc: 'Inspiração, intuição e ânimo. Usado para lançar magias, perceber o sobrenatural e definir a Energia.'
+                },
+                {
+                    id: 'fisico',
+                    name: 'FÍSICO',
+                    desc: 'Força, agilidade e atletismo. Usado para derrubar, escalar, nadar, furtividade e proezas corporais.'
+                },
+                {
+                    id: 'intelecto',
+                    name: 'INTELECTO',
+                    desc: 'Coisas da mente: vencer jogos, criar engenhocas, alquimia, perceber detalhes e interpretar informações.'
+                },
+                {
+                    id: 'saude',
+                    name: 'SAÚDE',
+                    desc: 'Mede a vitalidade, resistência a doenças, venenos e privações. Define a quantidade de Vida da personagem.'
+                }
+            ],
+
+            traits: [
+                // CARACTERÍSTICAS GERAIS (Páginas 11 a 17)
+                { name: "Abençoada", category: "Geral", desc: "A personagem consegue causar Dano em seres Fantasmagóricos ou Imunes a Danos Físicos." },
+                { name: "Ágil em Combate", category: "Geral", desc: "Custa 1 de Energia - Apenas 1 vez por Rodada: Quando sua personagem falhar um Ataque, ela poderá tentar mais uma vez, porém este segundo Ataque ficará difícil (-1)." },
+                { name: "Alquimista", category: "Geral", desc: "Treinada na arte de fazer misturas químicas de substâncias para criar novos compostos capazes de curar, ferir, envenenar, explodir, dentre outros (veja Alquimia)." },
+                { name: "Aparar", category: "Geral", desc: "Custa 2 de Energia: Pode usar o atributo Ataque como se fosse Defesa. Com um Eita! nesta defesa, causa 1 de dano no oponente e ele recebe -1 para Atacar com a arma até consertá-la." },
+                { name: "Armadilheira", category: "Geral", desc: "Teste com Intelecto: A personagem consegue fazer uma armadilha com Camuflagem e Poder iguais a 2 + a Margem." },
+                { name: "Armeira", category: "Geral", desc: "Sua personagem faz ou conserta todos os tipos de arma. Para isso ela necessitará de tempo e materiais apropriados." },
+                { name: "Armona", category: "Geral", desc: "A Arma Preferida é especial e causa mais dano. Custa 1 de Energia - Quando tirar um Eita! em um Ataque com sua Armona: aumenta o Dano em 1." },
+                { name: "Arrombadora", category: "Geral", desc: "Costuma improvisar ou carregar instrumentos e, desde que tenha tempo suficiente, conseguirá arrombar, abrir ou trancar quase qualquer tipo de fechadura." },
+                { name: "Astúcia de Combate", category: "Geral", desc: "Custa 1 Turno: Passa seu Turno inteiro observando o oponente. O Ataque seguinte contra ele recebe +1. Se o resultado for um Eita!, o dano aumenta em 1." },
+                { name: "Atenta", category: "Geral", desc: "Senso de percepção aguçado. Em testes de Intelecto ou Espírito para perceber presenças, detalhes ou testar Iniciativa, recebe +1 no Atributo." },
+                { name: "Atiradora", category: "Geral", desc: "Usa arco, revólver ou arma à distância sem gastar Turno para sacar munições e preparar a arma (sem ela, armas à distância gastam 1 Turno e têm -1 se não forem Arma Preferida)." },
+                { name: "Barda", category: "Geral", desc: "Canção de Inspiração (1 de Energia - Teste Intelecto - Dura 1 Rodada): Aliados recebem +1 em Ataque ou Espírito (não cumulativo). Com Eita!, dura até o fim do combate." },
+                { name: "Bicha D'água", category: "Geral", desc: "Sabe nadar muito bem. Rios, mares ou outros corpos d'água não a atrapalham significativamente. Não morre afogada, salvo algo plausível." },
+                { name: "Boa de Mira", category: "Geral", desc: "Custa 1 Turno: Passa o Turno observando o oponente. O Ataque seguinte recebe +1 no dano. Se tirar um Eita!, o alvo fica sem ação no próximo turno." },
+                { name: "Boa de Briga", category: "Geral", desc: "Exímia lutadora de artes marciais; consegue derrubar ou imobilizar um oponente já caído com Ataque ou Físico." },
+                { name: "Brutalidade", category: "Geral", desc: "Custa 2 de Energia: Com um Ataque corpo-a-corpo, sua personagem é capaz de atingir dois oponentes que estejam a uma Distância Curta." },
+                { name: "Bugiganga", category: "Geral", desc: "Tem em seus pertences objetos úteis sempre que precisar (chave de fendas, gazua, pedaço de tecido, etc.), pequenos e sem grande valor de venda." },
+                { name: "Canalizadora", category: "Geral", desc: "Parte ou todo o corpo funciona como canalizador de energia do ambiente. Seu total de Energia aumenta em 1." },
+                { name: "Carismática", category: "Geral", desc: "Sempre que testar Intelecto, Espírito ou Físico a fim de influenciar a opinião de algum personagem, este teste receberá +1." },
+                { name: "Chicoteira", category: "Geral", desc: "Portando chicote, usa Ataque vs Físico para produzir estalo que deixa o alvo Abalado (-1 Ataque e Defesa) por 1 rodada (+2 Energia por alvo extra)." },
+                { name: "Chuva de Tiros", category: "Geral", desc: "Custa 1 de Energia por personagem extra: Com apenas um Ataque usando armas à distância, você pode atingir mais de um personagem." },
+                { name: "Combate Montado", category: "Geral", desc: "Sem penalidade (-1) ao combater montada, +1 em Físico/Intelecto para intimidar e pode fazer Ataque de Investida (+1 dano após deslocar)." },
+                { name: "Combatente", category: "Geral", desc: "Vasto conhecimento em combate e armas. Não recebe redutor (-1) quando combater com armas improvisadas ou que não sejam sua Arma Preferida." },
+                { name: "Condução", category: "Geral", desc: "Sabe operar, consertar e avaliar todos os tipos de veículos (carroças, carros, navios, naves, etc.), impulsionados por animais, velas ou motores." },
+                { name: "Contatos", category: "Geral", desc: "Possui muitos contatos e poderá se valer deles para conseguir favores e informações." },
+                { name: "Curandeira", category: "Geral", desc: "Fora de combate, Teste de Intelecto recupera 1 de Vida (ou 1 + Margem com equipamentos adequados). Um Eita! recupera toda a Vida." },
+                { name: "Desarmadora", category: "Geral", desc: "Teste Ataque vs Ataque do oponente: faz ele deixar a arma cair ou perder uso por 1 Rodada. Com Eita!, a arma se quebra." },
+                { name: "Deslocadora", category: "Geral", desc: "Possui Deslocamento Maior: consegue se deslocar da Distância Curta (Perto) para Muito Longe e vice-versa em apenas 1 Turno." },
+                { name: "Destemida", category: "Geral", desc: "A personagem não sente medo e não será afetada por intimidações ou coisas aterrorizantes." },
+                { name: "Empatia com Animais", category: "Geral", desc: "Talento incomum para lidar com animais; entende seus instintos e consegue acalmá-los ou incitá-los com facilidade." },
+                { name: "Encontrão", category: "Geral", desc: "Teste Ataque ou Físico vs Físico ou Defesa: derruba o oponente. Se usado logo após Deslocar para se aproximar, também causa 1 de dano." },
+                { name: "Energia Mental", category: "Geral", desc: "A mente da personagem funciona em frequência que permite ter o Atributo Intelecto como fonte de sua Energia, no lugar de Espírito." },
+                { name: "Escorregadio", category: "Geral", desc: "Imune a efeitos que a façam ficar Agarrado. Custa 1 de Energia (1x por Rodada): evita contra-ataques." },
+                { name: "Estudiosa Mágica", category: "Geral", desc: "A personagem maga consegue fazer magias também a partir do Atributo Intelecto." },
+                { name: "Fé", category: "Geral", desc: "Custa 1 de Energia: Pede algo que alguém com seu poder possa realizar em 1 turno e testa Espírito; uma entidade com afinidade a ajuda." },
+                { name: "Frenética", category: "Geral", desc: "Se um Ataque deixar um oponente com zero de Vida, um novo ataque pode ser feito imediatamente contra outro personagem." },
+                { name: "Geofamiliaridade", category: "Geral", desc: "Identifica passagens secretas e armadilhas em rochas. Custa 1 de Energia: percebe presenças se movendo à Curta Distância." },
+                { name: "Hemomancia", category: "Geral", desc: "Personagem com Mágica pode usar o próprio sangue para produzir efeitos mágicos: cada 1 de Vida gasto equivale a 1 de Energia." },
+                { name: "Imitadora", category: "Geral", desc: "Consegue imitar sons, barulhos e vozes que já tenha ouvido por tempo suficiente." },
+                { name: "Intimidadora", category: "Geral", desc: "Custa 1 de Energia: Disputa de Físico ou Intelecto vs Intelecto; oponente intimidado só usa o Turno para escapar ou entregar o que quer." },
+                { name: "Jejuadora", category: "Geral", desc: "Não sente efeitos de fome. Só precisa comer uma vez por semana." },
+                { name: "Mágica", category: "Geral", desc: "Conjuradora: cria magias livremente com Espírito gastando Energia (0 a 4+). Limite de 3 Energia por magia sem Poder Mágico." },
+                { name: "Magifluxão", category: "Geral", desc: "Talento mágico inato: sempre que conseguir um Eita! para executar uma mágica, seu custo de Energia se reduz a zero." },
+                { name: "Mestra dos Disfarces", category: "Geral", desc: "Consegue se passar por outro com facilidade. Para perceber o disfarce, é preciso vencer uma Disputa de Intelecto." },
+                { name: "Mirar nos Olhos", category: "Geral", desc: "Demora 1 Turno observando o oponente. O Ataque seguinte deixa o alvo cego de um olho (um Eita! cega de um olho a mais)." },
+                { name: "Oportunista", category: "Geral", desc: "Custa 1 de Energia, 1 vez por Rodada: A personagem pode atacar um alvo caído ou impossibilitado de reagir." },
+                { name: "Persistente", category: "Geral", desc: "Não gasta Turno para levantar, deitar ou se desvencilhar. +1 em testes para resistir presa/agarrada e Saúde ao chegar a Zero de Vida." },
+                { name: "Poder Mágico", category: "Geral", desc: "Para personagens com Mágica: não possui limite de Energia por conjuração (sem ela o limite é 3 ou nível de Espírito)." },
+                { name: "Prender Arma", category: "Geral", desc: "Sua arma prende-se ao oponente após ataque bem-sucedido. O oponente gasta Turno ou 1 Energia para remover ou fica com -1 Ataque e -1 Defesa." },
+                { name: "Reforço de Defesa", category: "Geral", desc: "Reduz em 1 o dano que seria causado na personagem (o dano mínimo recebido deve ser 1)." },
+                { name: "Saudável", category: "Geral", desc: "Sempre que receber uma cura, seu efeito será dobrado. Testes de Saúde contra venenos e doenças recebem +1." },
+                { name: "Sacadora", category: "Geral", desc: "Consegue sacar um objeto de seus pertences sem gastar seu Turno." },
+                { name: "Sortuda", category: "Geral", desc: "Contra Ataques Sorrateiros, armadilhas ou qualquer efeito que pegaria a personagem de surpresa, ela ainda poderá usar sua Defesa." },
+                { name: "Sequência", category: "Geral", desc: "Quando um Ataque resultar em um Eita!, pode receber os benefícios do Eita! ou Atacar mais uma vez (sem limite enquanto tirar Eita!)." },
+                { name: "Sobrevivência", category: "Geral", desc: "Especialista em ambientes selvagens; mesmo em locais escassos consegue se virar e obter pelo menos água para resistir." },
+                { name: "Sorrateira", category: "Geral", desc: "Furtiva (Físico vs Intelecto): pode atacar usando Físico e o Dano dos seus ataques aumenta em 1." },
+                { name: "Toque Drenante", category: "Geral", desc: "Com uma Disputa de Físico contra Defesa ou Físico do oponente, faz o alvo perder 1 de Energia." },
+                { name: "Trapaceira", category: "Geral", desc: "Custa 1 de Energia - Disputa Físico/Intelecto: oponente fica atrapalhado e não age no próximo Turno (-1 cumulativo ao repetir no mesmo alvo; Eita! não gasta Energia)." },
+                { name: "Vigorosa", category: "Geral", desc: "O total de Vida máxima da personagem aumenta em 1." },
+                { name: "Violenta", category: "Geral", desc: "Teste Físico ou Intelecto vs Intelecto: ao derrotar um oponente, amedronta outros oponentes (usam o Turno apenas para fugir)." },
+                { name: "Visão no Escuro", category: "Geral", desc: "Consegue se virar tranquilamente em escuridão total, enxergando no escuro até a Distância Próximo." },
+
+                // CARACTERÍSTICAS PARA JOGOS MODERNOS (Página 17)
+                { name: "Cibernética", category: "Moderno", desc: "Sabe lidar com programação, instalação e remoção de partes cibernéticas de seres vivos." },
+                { name: "Especialista em Bombas", category: "Moderno", desc: "Conhecimento técnico e prático na fabricação, desativação, demolições controladas e manuseio de explosivos." },
+                { name: "Analista de Sistemas", category: "Moderno", desc: "Proficiente em programação, redes, segurança cibernética e montagem/reparo de hardware e servidores." },
+                { name: "Piloto", category: "Moderno", desc: "Operação de diversos tipos de aeronaves (comerciais a helicópteros militares), manobras avançadas e comunicação." },
+                { name: "Mecânica", category: "Moderno", desc: "Consegue projetar, construir, operar e reparar diversos tipos de objetos e dispositivos mecânicos e/ou eletrônicos." }
+            ],
+
+            items: [
+                // OBJETOS COMUNS (Páginas 30-31)
+                { name: "Estojo de Maquiagens", price: 50, category: "Objeto Comum", desc: "Útil para disfarces." },
+                { name: "Gancho de Escalada", price: 20, category: "Objeto Comum", desc: "Suporta cerca de 500kg." },
+                { name: "Mochila", price: 50, category: "Objeto Comum", desc: "Suporta até 50kg." },
+                { name: "Saco de Dormir ou Rede", price: 30, category: "Objeto Comum", desc: "Para uma pessoa." },
+                { name: "Roupas Comuns", price: 30, category: "Objeto Comum", desc: "Vestuário padrão de viagem." },
+                { name: "Óleo ou Pólvora", price: 20, category: "Objeto Comum", desc: "Frasco/bolsa inflamável ou explosiva." },
+                { name: "Tocha", price: 5, category: "Objeto Comum", desc: "Ilumina até a Distância Curta." },
+                { name: "Roupas de Inverno", price: 100, category: "Objeto Comum", desc: "A personagem fica imune a efeitos de climas frios." },
+                { name: "Roupas de Alta Classe", price: 350, category: "Objeto Comum", desc: "Faz parecer ou pertencer a uma classe que lhe favorece em situações sociais." },
+                { name: "Pederneira", price: 5, category: "Objeto Comum", desc: "Cria fagulhas para atear fogo." },
+                { name: "Algemas", price: 20, category: "Objeto Comum", desc: "Uma vez preso, apenas um Eita! em Físico para escapar." },
+                { name: "Barraca (2 pessoas)", price: 50, category: "Objeto Comum", desc: "Abrigo portátil para 2 pessoas." },
+                { name: "Barraca (4 pessoas)", price: 70, category: "Objeto Comum", desc: "Abrigo portátil para 4 pessoas." },
+                { name: "Boleadeira", price: 30, category: "Objeto Comum", desc: "Alcance Longo. Ataque ou Físico -1 vs Físico/Defesa. Prende o alvo (impede Deslocar até gastar Turno)." },
+                { name: "Cantil ou Odre", price: 10, category: "Objeto Comum", desc: "Capacidade de até 2 Litros." },
+                { name: "Estrepes", price: 50, category: "Objeto Comum", desc: "Camuflagem com Intelecto, Poder 3: alvo desloca com dificuldade (2x para mudar distância)." },
+                { name: "Espelho", price: 10, category: "Objeto Comum", desc: "Pequeno espelho polido." },
+                { name: "Instrumentos de Ladrão", price: 50, category: "Objeto Comum", desc: "Evita penalidade de -1 para abrir portas, desativar armadilhas e trabalhos de precisão." },
+                { name: "Livro (com caneta e tinta)", price: 20, category: "Objeto Comum", desc: "Para registros, anotações e estudos." },
+                { name: "Lampião", price: 30, category: "Objeto Comum", desc: "Ilumina até uma Distância Longa." },
+                { name: "Básico Pessoal", price: 20, category: "Objeto Comum", desc: "Objetos úteis do dia-a-dia e cuidados higiênicos." },
+                { name: "Corda (por metro)", price: 1, category: "Objeto Comum", desc: "Suporta cerca de 500kg." },
+                { name: "Ração de Viagem (1 dia)", price: 10, category: "Objeto Comum", desc: "Suficiente para um dia inteiro de refeições." },
+                { name: "Kit de Primeiros Socorros", price: 30, category: "Objeto Comum", desc: "Personagens tratados não morrem quando inconscientes." },
+
+                // ARMADURAS (Página 31)
+                { name: "Armadura de Couro", price: 150, category: "Armadura", desc: "Proteção leve. Defina sua familiaridade inicial na ficha." },
+                { name: "Armadura de Talas de Metal", price: 350, category: "Armadura", desc: "Proteção média reforçada com talas metálicas." },
+                { name: "Cota de Malha", price: 500, category: "Armadura", desc: "Proteção pesada de anéis metálicos entrelaçados." },
+                { name: "Armadura Completa de Placas", price: 1000, category: "Armadura", desc: "Proteção máxima de placas de aço." },
+
+                // ARMAS CORPO-A-CORPO (Página 31)
+                { name: "Adaga ou Faca", price: 30, category: "Arma Corpo-a-corpo", desc: "Dano 1. Curto alcance." },
+                { name: "Nunchaku", price: 20, category: "Arma Corpo-a-corpo", desc: "Dano 1. Arma articulada ágil." },
+                { name: "Machadinha", price: 50, category: "Arma Corpo-a-corpo", desc: "Dano 1. Curto alcance." },
+                { name: "Espada", price: 100, category: "Arma Corpo-a-corpo", desc: "Dano 1. Lâmina versátil de combate." },
+                { name: "Machado de Guerra", price: 80, category: "Arma Corpo-a-corpo", desc: "Dano 1. Arma pesada de corte." },
+                { name: "Lança", price: 30, category: "Arma Corpo-a-corpo", desc: "Dano 1. Haste longa." },
+                { name: "Chicote", price: 25, category: "Arma Corpo-a-corpo", desc: "Dano 1. Permite técnicas da característica Chicoteira." },
+
+                // ARMAS DE PONTARIA (Página 31)
+                { name: "Arco (com aljava)", price: 50, category: "Arma de Pontaria", desc: "Dano 1. Alcance Longo. Gasta 1 Turno para preparar (sem Atiradora)." },
+                { name: "Shuriken (bolsa)", price: 5, category: "Arma de Pontaria", desc: "Dano 1. Lâminas de arremesso." },
+                { name: "Kunai (bolsa)", price: 10, category: "Arma de Pontaria", desc: "Dano 1. Adagas de arremesso." },
+                { name: "Estilingue (bolsa)", price: 5, category: "Arma de Pontaria", desc: "Dano 1. Disparo leve à distância." },
+                { name: "Besta (com aljava)", price: 100, category: "Arma de Pontaria", desc: "Dano 1. Alcance Longo. Gasta 1 Turno para preparar (sem Atiradora)." },
+                { name: "Funda (bolsa)", price: 5, category: "Arma de Pontaria", desc: "Dano 1. Arremesso de projéteis." },
+
+                // ALQUIMIA (Página 27)
+                { name: "Ácido (Alquimia - 1h)", price: 30, category: "Alquimia", desc: "Físico vs Defesa/Físico. Corrói objetos ou causa 1 de Dano." },
+                { name: "Antídoto (Alquimia - 1h)", price: 30, category: "Alquimia", desc: "Anula efeitos de venenos, mas não recupera Vida." },
+                { name: "Bomba Goblin (Alquimia - 2h)", price: 30, category: "Alquimia", desc: "Físico vs Defesa/Físico. Causa 1 de Dano a até 3 personagens no Alcance Curto." },
+                { name: "Cabaça de Visco (Alquimia - 1h)", price: 30, category: "Alquimia", desc: "Físico vs Defesa/Físico. Prende a personagem até gastar Turno para se soltar." },
+                { name: "Cachaça (Alquimia - 1h)", price: 20, category: "Alquimia", desc: "Após a 2ª dose, teste Saúde ou sofre -1 em Ataque, Defesa, Físico e Intelecto." },
+                { name: "Elixir da Saúde (Poder 4 - 4h)", price: 100, category: "Alquimia", desc: "Mágica. Recupera a Margem em Vida (mínimo 1)." },
+                { name: "Elixir de Energia (Poder 4 - 4h)", price: 100, category: "Alquimia", desc: "Mágica. Recupera a Margem em Energia (mínimo 1)." },
+                { name: "Perfume (Alquimia - 1h)", price: 40, category: "Alquimia", desc: "Ajuda a personagem em situações sociais." },
+                { name: "Poção do Caminhante (2h)", price: 30, category: "Alquimia", desc: "Mágica. O Deslocamento se torna Maior durante 1h ou 1 combate." },
+                { name: "Poção de Cura (2h)", price: 30, category: "Alquimia", desc: "Mágica. Recupera 1 de Vida." },
+                { name: "Poção de Mana (2h)", price: 30, category: "Alquimia", desc: "Mágica. Recupera 1 de Energia." },
+                { name: "Tinta Invisível (1/2h)", price: 20, category: "Alquimia", desc: "Só aparece com o uso de outra substância definida na confecção." },
+                { name: "Veneno Hemorrágico (Poder 3 - 2h)", price: 100, category: "Alquimia", desc: "Disputa vs Saúde por 3h (1x/hora): falha causa 1 de Dano permanente." },
+                { name: "Veneno Necrosante (Poder 3 - 2h)", price: 100, category: "Alquimia", desc: "Contra Saúde. A personagem recebe 1 de dano." },
+                { name: "Veneno Paralisante (Poder 3 - 4h)", price: 200, category: "Alquimia", desc: "Contra Saúde. A personagem fica paralisada, porém consciente." },
+
+                // OBJETOS INCOMUNS / MÁGICOS (Páginas 32-33)
+                { name: "Manoplas Mãos-de-goblin", price: 400, category: "Objeto Incomum", desc: "Mágico (1 Energia): Escalar na vertical ou de ponta cabeça como se deslocasse no solo." },
+                { name: "Amuleto de Bênção", price: 100, category: "Objeto Incomum", desc: "Mágico (1 Energia): Concede os efeitos da Característica Abençoada." },
+                { name: "Amuleto Vampírico", price: 200, category: "Objeto Incomum", desc: "Mágico: Ao tirar Eita! e ferir um oponente, gasta 1 de Energia para recuperar 1 de Vida." },
+                { name: "Conchas D'água", price: 100, category: "Objeto Incomum", desc: "Mágico: Dentro da boca, permitem respirar embaixo d'água." },
+                { name: "Elmo do Besouro", price: 500, category: "Objeto Incomum", desc: "Mágico (2 Energia): Aumenta Defesa em +1 durante 1h ou 1 combate." },
+                { name: "Arma Mágica +1", price: 500, category: "Objeto Incomum", desc: "Mágico (1 Energia): O Ataque aumenta em +1. Atinge seres fantasmagóricos." },
+                { name: "Arco do Alcance", price: 250, category: "Objeto Incomum", desc: "Mágico: O alcance desta arma é Muito Longo." },
+                { name: "Botas do Silêncio", price: 400, category: "Objeto Incomum", desc: "Mágico: Não produz som ao andar com elas." },
+                { name: "Braceletes de Telecinesia", price: 350, category: "Objeto Incomum", desc: "Mágico (1 Energia - Alcance Longo): Manipula objetos à distância por 2 rodadas." },
+                { name: "Capa de Invisibilidade Menor", price: 450, category: "Objeto Incomum", desc: "Mágico (1 Energia): Não pode ser visto durante 2 rodadas." },
+                { name: "Bomba de Fumaça", price: 50, category: "Objeto Incomum", desc: "Todos à Distância Perto ficam cegos durante 2 rodadas." },
+                { name: "Óculos de Visão no Escuro", price: 350, category: "Objeto Incomum", desc: "Mágico: Concede os efeitos da Característica Visão no Escuro." },
+                { name: "Flecha Explosiva", price: 30, category: "Objeto Incomum", desc: "Um Ataque com esta flecha pode atingir dois personagens de uma vez." },
+                { name: "Flecha Mágica Comum", price: 20, category: "Objeto Incomum", desc: "Pode atingir até mesmo seres fantasmagóricos." },
+                { name: "Flecha Congelante", price: 50, category: "Objeto Incomum", desc: "Mágica: Alvo atingido testa Físico ou fica preso por 2 rodadas." },
+                { name: "Poção de Regeneração", price: 100, category: "Objeto Incomum", desc: "Mágica: Recupera membros perdidos e cura Agravantes." },
+                { name: "Flauta da Serenidade", price: 500, category: "Objeto Incomum", desc: "Mágico: Ouvir sua música por algum tempo recupera 1 de Vida." },
+                { name: "Máscara das Mil Faces", price: 600, category: "Objeto Incomum", desc: "Mágico: Muda completamente de aparência (dentro da espécie) por 1h ou 1 combate." }
+            ],
+
+            creatures: [
+                { name: "Archote", stats: "Ataque 4, Defesa 2, Intelecto 2 | Vida 3, Energia 3", abilities: "Atento; Imunidade a Calor; Incendiar-se (1 Energia: atinge até 3 Próximos); Cauda Explosiva (detona em 2 rodadas com Poder 5)." },
+                { name: "Azembar", stats: "Defesa 4, Intelecto 2 | Vida 3, Energia 3", abilities: "Humanoide morcego. Sibilo (1 Energia - Físico vs Físico/Saúde: atordoa Próximos por 1 rodada); Voo." },
+                { name: "Carpideira", stats: "Ataque 4, Defesa 3, Espírito 4 | Energia 4", abilities: "Fantasmagórico (só sofre dano mágico/abençoado na Energia); Possessor (Disputa Intelecto); Aterrorizante." },
+                { name: "Cavalo (Erimantia)", stats: "Físico 6, Intelecto 2, Saúde 4 | Vida 4, Energia 3", abilities: "Sensibilidade Sobrenatural (vê outros planos); Deslocador." },
+                { name: "Chato", stats: "Ataque 4, Físico 4, Intelecto 2 | Vida 3, Energia 3", abilities: "Camuflagem (Poder = Físico); Lento (2x deslocamento); Agarrar (1 dano/turno preso); Sorrateiro." },
+                { name: "Chupacabra", stats: "Ataque 4, Intelecto 2 | Vida 3, Energia 3", abilities: "Ágil em Combate; Atento; Espinhoso (-1 agarrar e 1 dano); Hematófago (1 Energia cura 1 Vida); Sorrateiro; Sangue Fétido ao morrer." },
+                { name: "Coaxal", stats: "Ataque 4, Físico 5 | Vida 3, Energia 3", abilities: "Escorregadio; Abocanhador (engole alvo menor); Esmagar (1 dano); Linguarudo (puxa de Longe para Curto)." },
+                { name: "Come-pedras", stats: "Ataque 4, Físico 3, Intelecto 2 | Vida 3, Energia 3", abilities: "Arma Envenenada (1 dano permanente/hora sem antídoto); Cego (-1 visão); Sequência; Ruído de Presas (1 Energia: 1 dano Perto)." },
+                { name: "Crinídea", stats: "Ataque 4, Defesa 4, Intelecto 2 | Vida 3, Energia 3", abilities: "Grande ave montaria. Armona (Esporas nos machos); Deslocador; Atento." },
+                { name: "Dangoren", stats: "Ataque 6, Defesa 4, Espírito 5, Intelecto 4 | Energia 5", abilities: "Atento; Fantasmagórico; Sorrateiro; Voo; Armona (Espada Espiritual); Prole (vítima morta vira Zumbi)." },
+                { name: "Dicéfalo", stats: "Ataque 6, Defesa 4, Físico 7, Saúde 4 | Vida 5, Energia 3", abilities: "Gigante de 2 cabeças. Atento; Grandalhão; Atropelador (ataca 2 de pé + caídos); Mais Cabeças (2 testes de Intelecto); Vigoroso." },
+                { name: "Esqueleto", stats: "Físico -1, Sem Intelecto/Saúde | Vida 3, Energia 3", abilities: "Reforço de Defesa; Reviver (1 Energia: remonta em 1 rodada); Vazio (imune a furtividade e letalidades)." },
+                { name: "Estalador", stats: "Ataque 5, Físico 4, Intelecto 2 | Vida 3, Energia 3", abilities: "Anfíbio elétrico de 5m. Eletrizado (imune/dano elétrico); Estalar (dano Próximo); Corrente; Potência (Eita! + X Energia = +X dano)." },
+                { name: "Goblin", stats: "Ataque 4, Físico 2 | Vida 3, Energia 3", abilities: "Atento; Atirador/Armona/Reforço de Defesa; Escalador; Visão no Escuro; Sorrateiro." },
+                { name: "Guívora", stats: "Ataque 4, Defesa 4 | Vida 3, Energia 3", abilities: "Guardião de mana (cada olho fornece 1 Energia). Ataque de Área (1 Energia: 2 alvos); Atirador (Longo); Espinhoso; Vazio; Visão no Escuro." },
+                { name: "Mantrua", stats: "Defesa 4, Intelecto 2, Saúde 4 | Vida 4, Energia 3", abilities: "Aracnídeo mágico. Sorrateiro; Escalador; Névoa de Sono (1 Energia - Poder 4 vs Saúde: dorme 1h); Visão de Infravermelho." },
+                { name: "Misqui", stats: "Ataque 2, Defesa 2, Físico 2, Intelecto 1 | Vida 3, Energia 3", abilities: "Gato-morcego. Planar (deslocamento longo); Agarrar; Visão no Escuro; Atento; Sorrateiro." },
+                { name: "Nul", stats: "Ataque 6, Defesa 4, Físico 6, Intelecto 2, Saúde 4 | Vida 5, Energia 3", abilities: "Atento; Fedorento (-1 Ataque e Defesa); Arma Infectada (1 dano permanente pós-combate); Vigoroso." },
+                { name: "Orc", stats: "Ataque 4, Defesa 4, Intelecto 2 | Vida 3, Energia 3", abilities: "Arma Envenenada (1 dano perm./hora); Fedorento (-1 Ataque e Defesa); Sensível à Luz (-1 percepção e Defesa); Visão no Escuro." },
+                { name: "Tárcora", stats: "Ataque 4, Defesa 5, Físico 4, Intelecto 2, Saúde 4 | Vida 5, Energia 3", abilities: "Artrópode gigante. Armona; Atento; Destemido; Furtivo; Reforço de Defesa; Sorrateiro; Vigoroso." },
+                { name: "Trol", stats: "Ataque 5, Defesa 5, Espírito 4, Físico 7, Intelecto 2, Saúde 4 | Vida 5, Energia 4", abilities: "Grandalhão; Sangue de Fada (ao ser ferido produz efeito mágico aleatório); Vigoroso." },
+                { name: "Vampiro (Modelo)", stats: "Modifica criatura base", abilities: "Destemido; Hematófago; Intolerância grave à Luz Solar (teste Saúde: sucesso = 2 dano/rodada, falha = morte); Pseudomorte." },
+                { name: "Zumbi (Modelo)", stats: "Sem Intelecto e Saúde | Mantém Vida", abilities: "Corpo reanimado por efeitos biológicos, mágicos ou sobrenaturais (como a Prole do Dangoren)." }
+            ]
+        };
+
+        /**
+         * ESTADO PADRÃO DA FICHA DO PERSONAGEM
+         */
+        function getDefaultState() {
+            return {
+                name: "",
+                player: "",
+                xpTotal: 30,
+                // Cada atributo guarda o total de quadrantes preenchidos (0 a 12 => Nível 3 a 6)
+                attrQuadrants: {
+                    ataque: 0,
+                    defesa: 0,
+                    espirito: 0,
+                    fisico: 0,
+                    intelecto: 0,
+                    saude: 0
+                },
+                hpCurrent: 3,
+                agravantes: 0,
+                enCurrent: 3,
+                money: 300,
+                portraitUrl: "",
+                favWeapon: "",
+                // Lista de características: { name, desc, paid (boolean: true = 2 XP, false = 0 XP limitante) }
+                traits: [],
+                // Lista de pertences: { qty, name }
+                inventory: [
+                    { qty: 1, name: "" },
+                    { qty: 1, name: "" },
+                    { qty: 1, name: "" },
+                    { qty: 1, name: "" },
+                    { qty: 1, name: "" },
+                    { qty: 1, name: "" }
+                ],
+                notes: ""
+            };
+        }
+
+        let state = getDefaultState();
+        let selectedRollAttr = 'ataque';
+        let rollHistory = [];
+        let isApplyingFromUrl = false;
+
+        /**
+         * CODIFICAÇÃO E DECODIFICAÇÃO UTF-8 <-> BASE64 PARA URL
+         */
+        function encodeStateToBase64(obj) {
+            try {
+                const jsonStr = JSON.stringify(obj);
+                const bytes = new TextEncoder().encode(jsonStr);
+                let binary = "";
+                for (let i = 0; i < bytes.byteLength; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                }
+                // Base64 URL-safe
+                return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+            } catch (e) {
+                console.error("Erro ao codificar estado em Base64:", e);
+                return "";
+            }
+        }
+
+        function decodeBase64ToState(b64) {
+            try {
+                if (!b64) return null;
+                let standardB64 = b64.replace(/-/g, '+').replace(/_/g, '/');
+                while (standardB64.length % 4) {
+                    standardB64 += '=';
+                }
+                const binary = atob(standardB64);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) {
+                    bytes[i] = binary.charCodeAt(i);
+                }
+                const jsonStr = new TextDecoder().decode(bytes);
+                return JSON.parse(jsonStr);
+            } catch (e) {
+                console.warn("Hash Base64 inválido ou vazio na URL:", e);
+                return null;
+            }
+        }
+
+        /**
+         * SINCRONIZAÇÃO EM TEMPO REAL COM A URL (WINDOW.LOCATION.HASH)
+         */
+        function syncStateToUrl() {
+            if (isApplyingFromUrl) return;
+            const encoded = encodeStateToBase64(state);
+            if (encoded) {
+                // Atualiza o hash sem poluir o histórico a cada tecla, mantendo URL sempre atualizada
+                history.replaceState(null, "", "#" + encoded);
+                const statusEl = document.getElementById("sync-status-text");
+                if (statusEl) {
+                    statusEl.textContent = "Salvo na URL (" + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}) + ")";
+                }
+            }
+        }
+
+        function loadStateFromUrl() {
+            const rawHash = window.location.hash.replace(/^#/, '').trim();
+            if (!rawHash) return false;
+
+            const decoded = decodeBase64ToState(rawHash);
+            if (decoded && typeof decoded === 'object') {
+                isApplyingFromUrl = true;
+                const def = getDefaultState();
+                state = {
+                    ...def,
+                    ...decoded,
+                    attrQuadrants: { ...def.attrQuadrants, ...(decoded.attrQuadrants || {}) },
+                    traits: Array.isArray(decoded.traits) ? decoded.traits : [],
+                    inventory: Array.isArray(decoded.inventory) && decoded.inventory.length > 0 ? decoded.inventory : def.inventory
+                };
+                renderAll();
+                isApplyingFromUrl = false;
+                return true;
+            }
+            return false;
+        }
+
+        /**
+         * CÁLCULOS DAS REGRAS DO MONO RPG
+         */
+        function getAttributeLevel(attrId) {
+            const quads = state.attrQuadrants[attrId] || 0;
+            return 3 + Math.floor(quads / 4);
+        }
+
+        function getAttributeRemainder(attrId) {
+            const quads = state.attrQuadrants[attrId] || 0;
+            return quads % 4;
+        }
+
+        function hasTrait(traitName) {
+            const target = traitName.toLowerCase().trim();
+            return state.traits.some(t => t.name && t.name.toLowerCase().trim() === target);
+        }
+
+        function getMaxLife() {
+            const saudeLvl = getAttributeLevel('saude');
+            const bonusVigorosa = hasTrait('Vigorosa') ? 1 : 0;
+            const agrav = parseInt(state.agravantes, 10) || 0;
+            return Math.max(1, saudeLvl + bonusVigorosa - agrav);
+        }
+
+        function getMaxEnergy() {
+            const baseAttr = hasTrait('Energia Mental') ? 'intelecto' : 'espirito';
+            const baseLvl = getAttributeLevel(baseAttr);
+            const bonusCanalizadora = hasTrait('Canalizadora') ? 1 : 0;
+            return Math.max(1, baseLvl + bonusCanalizadora);
+        }
+
+        function calculateXpSpent() {
+            let attrXp = 0;
+            Object.values(state.attrQuadrants).forEach(q => {
+                attrXp += (parseInt(q, 10) || 0);
+            });
+            let traitsXp = 0;
+            state.traits.forEach(t => {
+                if (t.paid) traitsXp += 2;
+            });
+            return attrXp + traitsXp;
+        }
+
+        /**
+         * RENDERIZAÇÃO DA FICHA NA INTERFACE
+         */
+        function renderAttributes() {
+            const container = document.getElementById('attributes-container');
+            container.innerHTML = '';
+
+            MONO_DATA.attributes.forEach(attr => {
+                const totalQuads = state.attrQuadrants[attr.id] || 0;
+                const level = getAttributeLevel(attr.id);
+                const rem = getAttributeRemainder(attr.id);
+
+                const row = document.createElement('div');
+                row.className = 'attr-row';
+
+                // Nome + Indicador de fração para desempate
+                const nameWrap = document.createElement('div');
+                nameWrap.className = 'attr-name-wrap';
+                nameWrap.innerHTML = `
+                    <span class="attr-name">${attr.name}</span>
+                    <span class="attr-tiebreaker">${rem > 0 ? `Desempate: +${rem}/4` : 'Nível exato'}</span>
+                `;
+                nameWrap.addEventListener('mouseenter', () => {
+                    document.getElementById('attr-help-box').innerHTML = `<strong>${attr.name} (Nível ${level}):</strong> ${attr.desc}`;
+                });
+
+                // Badge do Nível Atual
+                const badge = document.createElement('div');
+                badge.className = 'attr-current-badge';
+                badge.textContent = level;
+                badge.title = `Nível atual de ${attr.name}: ${level}`;
+
+                // 3 Losangos de 4 partes (Níveis 4, 5 e 6)
+                const track = document.createElement('div');
+                track.className = 'diamonds-track';
+
+                for (let d = 0; d < 3; d++) {
+                    const diamondStart = d * 4;
+                    const filledInThisDiamond = Math.max(0, Math.min(4, totalQuads - diamondStart));
+
+                    const svgNS = "http://www.w3.org/2000/svg";
+                    const svg = document.createElementNS(svgNS, "svg");
+                    svg.setAttribute("viewBox", "0 0 40 40");
+                    svg.setAttribute("class", "quad-diamond");
+                    svg.setAttribute("title", `Clique para preencher/esvaziar quadrante de ${attr.name} (1 XP cada)`);
+
+                    // 4 triângulos formando um losango dividido em cruz (igual ao manual do MONO)
+                    const quadrantsPoints = [
+                        "20,2 38,20 20,20",  // Quadrante 1 (Superior Direito)
+                        "38,20 20,38 20,20", // Quadrante 2 (Inferior Direito)
+                        "20,38 2,20 20,20",  // Quadrante 3 (Inferior Esquerdo)
+                        "2,20 20,2 20,20"    // Quadrante 4 (Superior Esquerdo)
+                    ];
+
+                    quadrantsPoints.forEach((pts, qIdx) => {
+                        const poly = document.createElementNS(svgNS, "polygon");
+                        poly.setAttribute("points", pts);
+                        if (qIdx < filledInThisDiamond) {
+                            poly.classList.add("filled");
+                        }
+                        svg.appendChild(poly);
+                    });
+
+                    // Clique esquerdo: avança 1/4 no losango (ou zera se clicar no último preenchido)
+                    svg.addEventListener('click', () => {
+                        const targetLevelQuads = (d + 1) * 4;
+                        if (totalQuads < targetLevelQuads) {
+                            state.attrQuadrants[attr.id] = totalQuads + 1;
+                        } else {
+                            // Permite reduzir ao clicar novamente no losango já cheio
+                            state.attrQuadrants[attr.id] = totalQuads - 1;
+                        }
+                        updateDerivedStatsAndSync();
+                    });
+
+                    // Clique direito: reduz 1/4 diretamente
+                    svg.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        if (totalQuads > 0) {
+                            state.attrQuadrants[attr.id] = totalQuads - 1;
+                            updateDerivedStatsAndSync();
+                        }
+                    });
+
+                    track.appendChild(svg);
+                }
+
+                row.appendChild(nameWrap);
+                row.appendChild(badge);
+                row.appendChild(track);
+                container.appendChild(row);
+            });
+        }
+
+        function renderVitalsAndXp() {
+            // XP
+            document.getElementById('xp-total').value = state.xpTotal;
+            const spent = calculateXpSpent();
+            const avail = (parseInt(state.xpTotal, 10) || 0) - spent;
+            document.getElementById('xp-spent').textContent = spent;
+            document.getElementById('xp-available').textContent = avail;
+
+            const availWrap = document.getElementById('xp-available-wrap');
+            if (avail < 0) availWrap.classList.add('negative');
+            else availWrap.classList.remove('negative');
+
+            // Reserva sugerida (10 F$ por XP inicial)
+            document.getElementById('money-suggested').textContent = (parseInt(state.xpTotal, 10) || 0) * 10;
+            document.getElementById('money-current').value = state.money;
+            const catMoney = document.getElementById('catalog-money-display');
+            if (catMoney) catMoney.textContent = state.money;
+
+            // Vida & Agravantes
+            const maxHp = getMaxLife();
+            document.getElementById('hp-max').textContent = maxHp;
+            document.getElementById('hp-current').value = state.hpCurrent;
+            document.getElementById('agrav-count').textContent = state.agravantes;
+
+            const hpPips = document.getElementById('hp-pips');
+            hpPips.innerHTML = '';
+            const totalHpPips = Math.max(maxHp, state.hpCurrent);
+            for (let i = 1; i <= totalHpPips; i++) {
+                const pip = document.createElement('div');
+                pip.className = 'pip' + (i <= state.hpCurrent ? ' active' : '');
+                pip.title = `Vida ${i}/${maxHp}`;
+                pip.addEventListener('click', () => {
+                    state.hpCurrent = (state.hpCurrent === i) ? i - 1 : i;
+                    updateDerivedStatsAndSync();
+                });
+                hpPips.appendChild(pip);
+            }
+
+            // Energia
+            const maxEn = getMaxEnergy();
+            document.getElementById('en-max').textContent = maxEn;
+            document.getElementById('en-current').value = state.enCurrent;
+
+            const enPips = document.getElementById('en-pips');
+            enPips.innerHTML = '';
+            const totalEnPips = Math.max(maxEn, state.enCurrent);
+            for (let i = 1; i <= totalEnPips; i++) {
+                const pip = document.createElement('div');
+                pip.className = 'pip' + (i <= state.enCurrent ? ' active' : '');
+                pip.title = `Energia ${i}/${maxEn}`;
+                pip.addEventListener('click', () => {
+                    state.enCurrent = (state.enCurrent === i) ? i - 1 : i;
+                    updateDerivedStatsAndSync();
+                });
+                enPips.appendChild(pip);
+            }
+        }
+
+        function renderPortrait() {
+            const urlInput = document.getElementById('portrait-url');
+            const img = document.getElementById('portrait-img');
+            const placeholder = document.getElementById('portrait-placeholder');
+
+            urlInput.value = state.portraitUrl || '';
+            if (state.portraitUrl && state.portraitUrl.trim() !== '') {
+                img.src = state.portraitUrl.trim();
+                img.style.display = 'block';
+                placeholder.style.display = 'none';
+                img.onerror = () => {
+                    img.style.display = 'none';
+                    placeholder.style.display = 'block';
+                };
+            } else {
+                img.style.display = 'none';
+                placeholder.style.display = 'block';
+            }
+        }
+
+        function renderTraits() {
+            const list = document.getElementById('traits-list');
+            list.innerHTML = '';
+
+            if (state.traits.length === 0) {
+                list.innerHTML = `
+                    <div style="padding:24px 12px; text-align:center; color:var(--ink-muted); font-size:0.78rem; border:1.5px dashed #ccc;">
+                        Nenhuma característica adicionada.<br>
+                        Clique em <strong>+ Catálogo</strong> para escolher entre as 66 características do livro (2 XP cada) ou adicione uma livre.
+                    </div>
+                `;
+                return;
+            }
+
+            state.traits.forEach((trait, idx) => {
+                const item = document.createElement('div');
+                item.className = 'trait-item';
+
+                // Losango interativo (preenchido = 2 XP, vazio = limitante 0 XP)
+                const diamondBtn = document.createElement('button');
+                diamondBtn.type = 'button';
+                diamondBtn.className = 'trait-diamond-btn';
+                diamondBtn.title = trait.paid
+                    ? 'Losango preenchido (2 XP). Clique para alternar para Limitante (0 XP).'
+                    : 'Losango vazio (Limitante / 0 XP). Clique para preencher (2 XP).';
+                diamondBtn.innerHTML = `
+                    <svg width="22" height="22" viewBox="0 0 24 24">
+                        <polygon points="12,2 22,12 12,22 2,12" fill="${trait.paid ? '#111111' : '#ffffff'}" stroke="#111111" stroke-width="2.2"/>
+                    </svg>
+                `;
+                diamondBtn.addEventListener('click', () => {
+                    state.traits[idx].paid = !state.traits[idx].paid;
+                    updateDerivedStatsAndSync();
+                });
+
+                const content = document.createElement('div');
+                content.className = 'trait-content';
+
+                const titleRow = document.createElement('div');
+                titleRow.className = 'trait-title-row';
+
+                const nameInput = document.createElement('input');
+                nameInput.type = 'text';
+                nameInput.className = 'trait-name-input';
+                nameInput.value = trait.name;
+                nameInput.placeholder = 'Nome da Característica';
+                nameInput.addEventListener('input', (e) => {
+                    state.traits[idx].name = e.target.value;
+                    updateDerivedStatsAndSync(false);
+                });
+
+                const tag = document.createElement('span');
+                tag.className = 'trait-tag' + (trait.paid ? ' paid' : '');
+                tag.textContent = trait.paid ? '2 XP' : 'LIMITANTE';
+
+                titleRow.appendChild(nameInput);
+                titleRow.appendChild(tag);
+
+                const descInput = document.createElement('textarea');
+                descInput.className = 'trait-desc-input';
+                descInput.rows = 2;
+                descInput.value = trait.desc || '';
+                descInput.placeholder = 'Descrição ou justificativa narrativa...';
+                descInput.addEventListener('input', (e) => {
+                    state.traits[idx].desc = e.target.value;
+                    syncStateToUrl();
+                });
+
+                content.appendChild(titleRow);
+                content.appendChild(descInput);
+
+                const delBtn = document.createElement('button');
+                delBtn.type = 'button';
+                delBtn.className = 'btn-remove-row';
+                delBtn.innerHTML = '&times;';
+                delBtn.title = 'Remover característica';
+                delBtn.addEventListener('click', () => {
+                    state.traits.splice(idx, 1);
+                    updateDerivedStatsAndSync();
+                });
+
+                item.appendChild(diamondBtn);
+                item.appendChild(content);
+                item.appendChild(delBtn);
+                list.appendChild(item);
+            });
+        }
+
+        function renderInventory() {
+            const container = document.getElementById('inventory-list');
+            container.innerHTML = '';
+
+            state.inventory.forEach((item, idx) => {
+                const row = document.createElement('div');
+                row.className = 'inv-row';
+
+                const qtyInput = document.createElement('input');
+                qtyInput.type = 'number';
+                qtyInput.className = 'inv-qty';
+                qtyInput.min = 1;
+                qtyInput.value = item.qty || 1;
+                qtyInput.title = 'Quantidade';
+                qtyInput.addEventListener('input', (e) => {
+                    state.inventory[idx].qty = parseInt(e.target.value, 10) || 1;
+                    syncStateToUrl();
+                });
+
+                const nameInput = document.createElement('input');
+                nameInput.type = 'text';
+                nameInput.className = 'inv-name';
+                nameInput.value = item.name || '';
+                nameInput.placeholder = 'Item / Equipamento...';
+                nameInput.addEventListener('input', (e) => {
+                    state.inventory[idx].name = e.target.value;
+                    syncStateToUrl();
+                });
+
+                const delBtn = document.createElement('button');
+                delBtn.type = 'button';
+                delBtn.className = 'btn-remove-row';
+                delBtn.innerHTML = '&times;';
+                delBtn.title = 'Remover item';
+                delBtn.addEventListener('click', () => {
+                    state.inventory.splice(idx, 1);
+                    if (state.inventory.length === 0) {
+                        state.inventory.push({ qty: 1, name: '' });
+                    }
+                    renderInventory();
+                    syncStateToUrl();
+                });
+
+                row.appendChild(qtyInput);
+                row.appendChild(nameInput);
+                row.appendChild(delBtn);
+                container.appendChild(row);
+            });
+        }
+
+        function renderRollerButtons() {
+            const container = document.getElementById('roller-attr-buttons');
+            if (!container) return;
+            container.innerHTML = '';
+
+            MONO_DATA.attributes.forEach(attr => {
+                const lvl = getAttributeLevel(attr.id);
+                const rem = getAttributeRemainder(attr.id);
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'roll-attr-btn' + (selectedRollAttr === attr.id ? ' selected' : '');
+                btn.innerHTML = `${attr.name}<br><span style="font-size:0.95rem;">Nível ${lvl}</span>${rem > 0 ? `<br><small>(+${rem}/4)</small>` : ''}`;
+                btn.addEventListener('click', () => {
+                    selectedRollAttr = attr.id;
+                    renderRollerButtons();
+                    updateEffectiveTarget();
+                });
+                container.appendChild(btn);
+            });
+            updateEffectiveTarget();
+        }
+
+        function updateEffectiveTarget() {
+            const base = getAttributeLevel(selectedRollAttr);
+            const mod = parseInt(document.getElementById('roll-modifier').value, 10) || 0;
+            const total = base + mod;
+            document.getElementById('roll-effective-target').textContent = `${total} (Base ${base} ${mod >= 0 ? '+' + mod : mod})`;
+        }
+
+        function updateDerivedStatsAndSync(rerenderAll = true) {
+            if (rerenderAll) {
+                renderAttributes();
+                renderTraits();
+            }
+            renderVitalsAndXp();
+            renderRollerButtons();
+            syncStateToUrl();
+        }
+
+        function renderAll() {
+            document.getElementById('char-name').value = state.name || '';
+            document.getElementById('player-name').value = state.player || '';
+            document.getElementById('fav-weapon').value = state.favWeapon || '';
+            document.getElementById('char-notes').value = state.notes || '';
+
+            renderPortrait();
+            renderAttributes();
+            renderTraits();
+            renderVitalsAndXp();
+            renderInventory();
+            renderRollerButtons();
+        }
+
+        /**
+         * RENDERIZAÇÃO DOS CATÁLOGOS (CARACTERÍSTICAS, EQUIPAMENTOS E BESTIÁRIO)
+         */
+        function renderTraitsCatalog() {
+            const grid = document.getElementById('traits-catalog-grid');
+            const query = document.getElementById('trait-search').value.toLowerCase().trim();
+            const cat = document.getElementById('trait-category-filter').value;
+
+            grid.innerHTML = '';
+
+            const filtered = MONO_DATA.traits.filter(t => {
+                const matchCat = (cat === 'ALL' || t.category === cat);
+                const matchText = t.name.toLowerCase().includes(query) || t.desc.toLowerCase().includes(query);
+                return matchCat && matchText;
+            });
+
+            filtered.forEach(t => {
+                const alreadyHas = hasTrait(t.name);
+                const card = document.createElement('div');
+                card.className = 'compendium-card';
+                card.innerHTML = `
+                    <div>
+                        <h4>
+                            <span>${t.name}</span>
+                            <span class="trait-tag">${t.category}</span>
+                        </h4>
+                        <p style="margin-top:8px;">${t.desc}</p>
+                    </div>
+                    <div class="card-actions">
+                        <button type="button" class="btn-mini btn-add-trait-card" style="width:100%; padding:7px;">
+                            ${alreadyHas ? '✓ Adicionada (Adicionar +1)' : '+ Adicionar à Ficha (2 XP)'}
+                        </button>
+                    </div>
+                `;
+
+                card.querySelector('.btn-add-trait-card').addEventListener('click', () => {
+                    state.traits.push({ name: t.name, desc: t.desc, paid: true });
+                    // Ajusta automaticamente Vida/Energia se adquiriu Vigorosa ou Canalizadora
+                    if (t.name === 'Vigorosa') state.hpCurrent += 1;
+                    if (t.name === 'Canalizadora') state.enCurrent += 1;
+                    updateDerivedStatsAndSync();
+                    renderTraitsCatalog();
+                    showToast(`Característica "${t.name}" adicionada (-2 XP)!`);
+                });
+
+                grid.appendChild(card);
+            });
+        }
+
+        function renderItemsCatalog() {
+            const grid = document.getElementById('items-catalog-grid');
+            const query = document.getElementById('item-search').value.toLowerCase().trim();
+            const cat = document.getElementById('item-category-filter').value;
+
+            grid.innerHTML = '';
+
+            const filtered = MONO_DATA.items.filter(item => {
+                const matchCat = (cat === 'ALL' || item.category === cat);
+                const matchText = item.name.toLowerCase().includes(query) || item.desc.toLowerCase().includes(query);
+                return matchCat && matchText;
+            });
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'compendium-card';
+                card.innerHTML = `
+                    <div>
+                        <h4>
+                            <span>${item.name}</span>
+                            <span class="trait-tag paid">F$ ${item.price}</span>
+                        </h4>
+                        <div class="card-meta" style="margin-top:6px;">${item.category}</div>
+                        <p style="margin-top:8px;">${item.desc}</p>
+                    </div>
+                    <div class="card-actions">
+                        <button type="button" class="btn-mini btn-buy-item" style="flex:1; padding:6px;">
+                            Comprar (-F$${item.price})
+                        </button>
+                        <button type="button" class="btn-mini btn-free-item" style="flex:1; padding:6px;" title="Equipamento inicial não tem custo">
+                            Pegar Inicial (Grátis)
+                        </button>
+                    </div>
+                `;
+
+                const addItemToBag = (itemName) => {
+                    const existing = state.inventory.find(i => i.name.toLowerCase() === itemName.toLowerCase());
+                    if (existing) {
+                        existing.qty += 1;
+                    } else {
+                        const emptySlot = state.inventory.find(i => !i.name || i.name.trim() === '');
+                        if (emptySlot) {
+                            emptySlot.name = itemName;
+                            emptySlot.qty = 1;
+                        } else {
+                            state.inventory.push({ qty: 1, name: itemName });
+                        }
+                    }
+                    renderInventory();
+                    syncStateToUrl();
+                };
+
+                card.querySelector('.btn-buy-item').addEventListener('click', () => {
+                    if (state.money < item.price) {
+                        showToast(`Saldo insuficiente! Você tem F$ ${state.money}.`);
+                        return;
+                    }
+                    state.money -= item.price;
+                    addItemToBag(item.name);
+                    renderVitalsAndXp();
+                    showToast(`Comprado: ${item.name} (-F$${item.price})`);
+                });
+
+                card.querySelector('.btn-free-item').addEventListener('click', () => {
+                    addItemToBag(item.name);
+                    showToast(`Adicionado aos Pertences: ${item.name}`);
+                });
+
+                grid.appendChild(card);
+            });
+        }
+
+        function renderBestiary() {
+            const grid = document.getElementById('bestiary-grid');
+            const query = document.getElementById('creature-search').value.toLowerCase().trim();
+            grid.innerHTML = '';
+
+            MONO_DATA.creatures
+                .filter(c => c.name.toLowerCase().includes(query) || c.abilities.toLowerCase().includes(query))
+                .forEach(c => {
+                    const card = document.createElement('div');
+                    card.className = 'compendium-card';
+                    card.innerHTML = `
+                        <div>
+                            <h4><span>${c.name}</span></h4>
+                            <div class="card-meta" style="margin-top:6px;">${c.stats}</div>
+                            <p style="margin-top:8px;">${c.abilities}</p>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+        }
+
+        /**
+         * ROLADOR DE DADOS 1D6 DO MONO
+         */
+        function rollMonoD6() {
+            const attrObj = MONO_DATA.attributes.find(a => a.id === selectedRollAttr);
+            const base = getAttributeLevel(selectedRollAttr);
+            const rem = getAttributeRemainder(selectedRollAttr);
+            const mod = parseInt(document.getElementById('roll-modifier').value, 10) || 0;
+            const target = base + mod;
+
+            const roll = Math.floor(Math.random() * 6) + 1;
+            const dieFace = document.getElementById('die-face');
+            const verdictEl = document.getElementById('roll-verdict');
+            const detailsEl = document.getElementById('roll-details');
+
+            dieFace.classList.remove('shake');
+            void dieFace.offsetWidth; // força reflow da animação
+            dieFace.classList.add('shake');
+            dieFace.textContent = roll;
+
+            let verdictText = "";
+            let verdictClass = "roll-verdict";
+            let explanation = "";
+
+            if (roll === 1) {
+                verdictText = "EITA! (SUCESSO CRÍTICO)";
+                verdictClass += " eita";
+                const margin = Math.max(0, target - 1);
+                explanation = `Você tirou 1 no teste de ${attrObj.name} (Alvo ${target}${rem > 0 ? `, +${rem}/4 desempate` : ''})! Margem ${margin}. Vence disputas automaticamente!`;
+            } else if (roll === 6) {
+                verdictText = "VIXE! (FALHA CRÍTICA)";
+                verdictClass += " vixe";
+                explanation = `Você tirou 6 no teste de ${attrObj.name} (Alvo ${target})! Falha desastrosa — prepare-se para uma complicação narrativa!`;
+            } else if (roll <= target) {
+                const margin = target - roll;
+                verdictText = `SUCESSO! (MARGEM ${margin})`;
+                explanation = `Dado ${roll} ≤ Alvo ${target} em ${attrObj.name}${rem > 0 ? ` (+${rem}/4 para desempate)` : ''}.`;
+            } else {
+                const failMargin = roll - target;
+                verdictText = `FALHA (POR ${failMargin})`;
+                explanation = `Dado ${roll} > Alvo ${target} em ${attrObj.name}. Ação não foi bem-sucedida.`;
+            }
+
+            verdictEl.className = verdictClass;
+            verdictEl.textContent = verdictText;
+            detailsEl.textContent = explanation;
+
+            rollHistory.unshift({
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                attr: attrObj.name,
+                target,
+                roll,
+                verdictText
+            });
+
+            const histEl = document.getElementById('roll-history');
+            histEl.innerHTML = rollHistory.map(h => `
+                <div class="history-entry">
+                    <strong>[${h.time}] ${h.attr} (Alvo ${h.target})</strong> &rarr; Dado: <strong>${h.roll}</strong> — <em>${h.verdictText}</em>
+                </div>
+            `).join('');
+        }
+
+        /**
+         * UTILITÁRIOS DE UI (TOAST E CLIPBOARD FALLBACK)
+         */
+        let toastTimer = null;
+        function showToast(message) {
+            const toast = document.getElementById('toast-banner');
+            toast.textContent = message;
+            toast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2800);
+        }
+
+        function copyCurrentUrlToClipboard() {
+            syncStateToUrl();
+            const fullUrl = window.location.href;
+
+            // Uso de textarea temporário + execCommand('copy') para máxima compatibilidade inclusive em iframes
+            const tempInput = document.createElement('textarea');
+            tempInput.value = fullUrl;
+            tempInput.style.position = 'fixed';
+            tempInput.style.left = '-9999px';
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999);
+
+            let copied = false;
+            try {
+                copied = document.execCommand('copy');
+            } catch (err) {
+                copied = false;
+            }
+            document.body.removeChild(tempInput);
+
+            if (!copied && navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(fullUrl).catch(() => {});
+            }
+
+            const btnLabel = document.getElementById('copy-url-label');
+            btnLabel.textContent = "URL Copiada!";
+            showToast("URL da ficha copiada para a área de transferência!");
+            setTimeout(() => {
+                btnLabel.textContent = "Copiar URL";
+            }, 2500);
+        }
+
+        /**
+         * INICIALIZAÇÃO E LISTENERS DE EVENTOS
+         */
+        function initApp() {
+            // Navegação por Abas
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                    btn.classList.add('active');
+                    const panel = document.getElementById(btn.dataset.tab);
+                    if (panel) panel.classList.add('active');
+                });
+            });
+
+            // Atalhos internos para abrir catálogos
+            document.getElementById('btn-open-traits-catalog').addEventListener('click', () => {
+                document.querySelector('[data-tab="panel-traits"]').click();
+            });
+            document.getElementById('btn-open-items-catalog').addEventListener('click', () => {
+                document.querySelector('[data-tab="panel-items"]').click();
+            });
+
+            // Inputs básicos da ficha
+            document.getElementById('char-name').addEventListener('input', (e) => {
+                state.name = e.target.value;
+                syncStateToUrl();
+            });
+
+            document.getElementById('player-name').addEventListener('input', (e) => {
+                state.player = e.target.value;
+                syncStateToUrl();
+            });
+
+            document.getElementById('xp-total').addEventListener('input', (e) => {
+                state.xpTotal = parseInt(e.target.value, 10) || 0;
+                renderVitalsAndXp();
+                syncStateToUrl();
+            });
+
+            document.getElementById('btn-add-session-xp').addEventListener('click', () => {
+                state.xpTotal = (parseInt(state.xpTotal, 10) || 0) + 1;
+                renderVitalsAndXp();
+                syncStateToUrl();
+                showToast("+1 Ponto de Experiência de sessão adicionado!");
+            });
+
+            // Controles de Vida, Agravantes, Energia e Dinheiro
+            document.getElementById('hp-current').addEventListener('input', (e) => {
+                state.hpCurrent = Math.max(0, parseInt(e.target.value, 10) || 0);
+                renderVitalsAndXp();
+                syncStateToUrl();
+            });
+            document.getElementById('hp-dec').addEventListener('click', () => {
+                state.hpCurrent = Math.max(0, state.hpCurrent - 1);
+                renderVitalsAndXp();
+                syncStateToUrl();
+            });
+            document.getElementById('hp-inc').addEventListener('click', () => {
+                state.hpCurrent += 1;
+                renderVitalsAndXp();
+                syncStateToUrl();
+            });
+
+            document.getElementById('agrav-dec').addEventListener('click', () => {
+                state.agravantes = Math.max(0, (state.agravantes || 0) - 1);
+                renderVitalsAndXp();
+                syncStateToUrl();
+            });
+            document.getElementById('agrav-inc').addEventListener('click', () => {
+                state.agravantes = (state.agravantes || 0) + 1;
+                if (state.hpCurrent > getMaxLife()) state.hpCurrent = getMaxLife();
+                renderVitalsAndXp();
+                syncStateToUrl();
+            });
+
+            document.getElementById('en-current').addEventListener('input', (e) => {
+                state.enCurrent = Math.max(0, parseInt(e.target.value, 10) || 0);
+                renderVitalsAndXp();
+                syncStateToUrl();
+            });
+            document.getElementById('en-dec').addEventListener('click', () => {
+                state.enCurrent = Math.max(0, state.enCurrent - 1);
+                renderVitalsAndXp();
+                syncStateToUrl();
+            });
+            document.getElementById('en-inc').addEventListener('click', () => {
+                state.enCurrent += 1;
+                renderVitalsAndXp();
+                syncStateToUrl();
+            });
+
+            document.getElementById('money-current').addEventListener('input', (e) => {
+                state.money = Math.max(0, parseInt(e.target.value, 10) || 0);
+                const catMoney = document.getElementById('catalog-money-display');
+                if (catMoney) catMoney.textContent = state.money;
+                syncStateToUrl();
+            });
+
+            // Retrato e Arma Preferida
+            document.getElementById('portrait-url').addEventListener('input', (e) => {
+                state.portraitUrl = e.target.value;
+                renderPortrait();
+                syncStateToUrl();
+            });
+            document.getElementById('btn-clear-portrait').addEventListener('click', () => {
+                state.portraitUrl = '';
+                renderPortrait();
+                syncStateToUrl();
+            });
+
+            document.getElementById('fav-weapon').addEventListener('input', (e) => {
+                state.favWeapon = e.target.value;
+                syncStateToUrl();
+            });
+
+            // Botões de Características Livres / Limitantes
+            document.getElementById('btn-add-custom-trait').addEventListener('click', () => {
+                state.traits.push({ name: "Nova Característica", desc: "", paid: true });
+                updateDerivedStatsAndSync();
+            });
+            document.getElementById('btn-add-flaw-trait').addEventListener('click', () => {
+                state.traits.push({ name: "Característica Limitante", desc: "Adquirida em jogo (não gasta XP).", paid: false });
+                updateDerivedStatsAndSync();
+            });
+
+            // Botão de Adicionar Linha de Inventário
+            document.getElementById('btn-add-inv-item').addEventListener('click', () => {
+                state.inventory.push({ qty: 1, name: "" });
+                renderInventory();
+                syncStateToUrl();
+            });
+
+            // Memorial / Anotações
+            document.getElementById('char-notes').addEventListener('input', (e) => {
+                state.notes = e.target.value;
+                syncStateToUrl();
+            });
+
+            // Filtros dos Catálogos
+            document.getElementById('trait-search').addEventListener('input', renderTraitsCatalog);
+            document.getElementById('trait-category-filter').addEventListener('change', renderTraitsCatalog);
+            document.getElementById('item-search').addEventListener('input', renderItemsCatalog);
+            document.getElementById('item-category-filter').addEventListener('change', renderItemsCatalog);
+            document.getElementById('creature-search').addEventListener('input', renderBestiary);
+
+            // Rolador 1d6
+            document.getElementById('roll-modifier').addEventListener('change', updateEffectiveTarget);
+            document.getElementById('btn-roll-d6').addEventListener('click', rollMonoD6);
+            document.getElementById('btn-clear-history').addEventListener('click', () => {
+                rollHistory = [];
+                document.getElementById('roll-history').innerHTML = '<p style="font-size:0.78rem; color:var(--ink-muted);">Nenhuma rolagem realizada ainda.</p>';
+            });
+
+            // Botões do Rodapé
+            document.getElementById('btn-copy-url').addEventListener('click', copyCurrentUrlToClipboard);
+            document.getElementById('btn-print-sheet').addEventListener('click', () => window.print());
+
+            // Modal de Reset
+            const modal = document.getElementById('confirm-modal');
+            document.getElementById('btn-reset-sheet').addEventListener('click', () => modal.classList.add('open'));
+            document.getElementById('modal-cancel').addEventListener('click', () => modal.classList.remove('open'));
+            document.getElementById('modal-confirm').addEventListener('click', () => {
+                state = getDefaultState();
+                renderAll();
+                renderTraitsCatalog();
+                syncStateToUrl();
+                modal.classList.remove('open');
+                showToast("Ficha resetada para os valores iniciais!");
+            });
+
+            // Sincronização Reversa quando a URL for alterada manualmente ou via histórico
+            window.addEventListener('hashchange', () => {
+                if (loadStateFromUrl()) {
+                    renderTraitsCatalog();
+                    showToast("Ficha atualizada a partir da URL!");
+                }
+            });
+            window.addEventListener('popstate', () => {
+                if (loadStateFromUrl()) {
+                    renderTraitsCatalog();
+                }
+            });
+
+            // Carrega estado inicial da URL (se houver) ou inicializa padrão
+            const loaded = loadStateFromUrl();
+            if (!loaded) {
+                renderAll();
+                syncStateToUrl();
+            }
+
+            // Renderiza catálogos e bestiário
+            renderTraitsCatalog();
+            renderItemsCatalog();
+            renderBestiary();
+        }
+
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
